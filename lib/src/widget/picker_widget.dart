@@ -52,15 +52,17 @@ class PickerWidget extends StatelessWidget {
       final endExtent =
           overshoot > midExtent ? lowestExtent + itemExtent : lowestExtent;
 
-      Future.delayed(Duration.zero, () async {
-        await controller.animateTo(
-          endExtent,
-          duration: const Duration(milliseconds: 500),
-          curve: Curves.bounceOut,
-        );
+      Future.delayed(Duration.zero, () {
+        if (controller.hasClients) {
+          controller.animateTo(
+            endExtent,
+            duration: const Duration(milliseconds: 500),
+            curve: Curves.bounceOut,
+          );
 
-        final rowIndex = (endExtent / itemExtent).floor() % itemCount;
-        onChange.call(rowIndex);
+          final rowIndex = (endExtent / itemExtent).floor() % itemCount;
+          onChange.call(rowIndex);
+        }
       });
     }
 

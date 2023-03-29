@@ -178,22 +178,24 @@ class _ScrollDatePickerState extends State<ScrollDatePicker> {
     }
 
     /* ReCheck day value */
-    final dayScrollPosition =
-        (_controllers[0].offset / widget.itemExtent).floor() % 31 + 1;
+    if (_controllers[0].hasClients) {
+      final dayScrollPosition =
+          (_controllers[0].offset / widget.itemExtent).floor() % 31 + 1;
 
-    if (newDate.day != dayScrollPosition) {
-      final difference = dayScrollPosition - newDate.day;
-      final endOffset =
-          _controllers[0].offset - (difference * widget.itemExtent);
+      if (newDate.day != dayScrollPosition) {
+        final difference = dayScrollPosition - newDate.day;
+        final endOffset =
+            _controllers[0].offset - (difference * widget.itemExtent);
 
-      if (!_controllers[0].position.isScrollingNotifier.value) {
-        Future.delayed(Duration.zero, () {
-          _controllers[0].animateTo(
-            endOffset,
-            duration: const Duration(milliseconds: 500),
-            curve: Curves.bounceOut,
-          );
-        });
+        if (!_controllers[0].position.isScrollingNotifier.value) {
+          Future.delayed(Duration.zero, () {
+            _controllers[0].animateTo(
+              endOffset,
+              duration: const Duration(milliseconds: 500),
+              curve: Curves.bounceOut,
+            );
+          });
+        }
       }
     }
 
