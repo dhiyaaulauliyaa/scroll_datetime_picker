@@ -52,6 +52,29 @@ class _MyHomePageState extends State<MyHomePage> {
           ),
           const SizedBox(height: 20),
           Text(DateFormat('dd MMMM yyyy', 'id').format(date)),
+          const SizedBox(height: 20),
+          ElevatedButton(
+            child: const Text('Show'),
+            onPressed: () async {
+              await showModalBottomSheet<DateTime>(
+                context: context,
+                builder: (context) {
+                  return ScrollDatePicker(
+                    itemExtent: 54,
+                    infiniteScroll: false,
+                    dateOption: DatePickerOption(
+                      minDate: DateTime(2000),
+                      initialDate: date,
+                      locale: const Locale('id', 'ID'),
+                    ),
+                    onChange: (datetime) => setState(() {
+                      date = datetime;
+                    }),
+                  );
+                },
+              );
+            },
+          )
         ],
       ),
     );
