@@ -12,10 +12,10 @@ class ScrollDatePicker extends StatefulWidget {
   const ScrollDatePicker({
     super.key,
     required this.itemExtent,
+    this.style,
     this.onChange,
     this.visibleItem = 3,
     this.infiniteScroll = true,
-    this.style = const DatePickerStyle(),
     this.dateOption = const DatePickerOption(),
   });
 
@@ -26,7 +26,7 @@ class ScrollDatePicker extends StatefulWidget {
   final void Function(DateTime datetime)? onChange;
 
   final DatePickerOption dateOption;
-  final DatePickerStyle style;
+  final DatePickerStyle? style;
 
   @override
   State<ScrollDatePicker> createState() => _ScrollDatePickerState();
@@ -35,6 +35,8 @@ class ScrollDatePicker extends StatefulWidget {
 class _ScrollDatePickerState extends State<ScrollDatePicker> {
   final _controllers = List.generate(3, (index) => ScrollController());
   late final ValueNotifier<DateTime> _activeDate;
+
+  late final DatePickerStyle _style;
   late _Helper _helper;
 
   @override
@@ -45,6 +47,7 @@ class _ScrollDatePickerState extends State<ScrollDatePicker> {
 
     _activeDate = ValueNotifier<DateTime>(widget.dateOption.getInitialDate);
     _helper = _Helper(widget.dateOption);
+    _style = widget.style ?? DatePickerStyle();
 
     SchedulerBinding.instance.addPostFrameCallback((_) {
       _initDate();
@@ -52,60 +55,74 @@ class _ScrollDatePickerState extends State<ScrollDatePicker> {
   }
 
   @override
+  void dispose() {
+    _activeDate.dispose();
+    for (final ctrl in _controllers) {
+      ctrl.dispose();
+    }
+
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     return SizedBox(
       width: double.infinity,
       height: widget.itemExtent * widget.visibleItem,
-      child: Stack(
-        alignment: Alignment.center,
-        children: [
-          /* Date */
-          SizedBox(
-            width: double.infinity,
-            height: widget.itemExtent * widget.visibleItem,
-            child: Row(
-              children: List.generate(
-                3,
-                (colIndex) => Expanded(
-                  child: PickerWidget(
-                    itemExtent: widget.itemExtent,
-                    infiniteScroll: widget.infiniteScroll,
-                    controller: _controllers[colIndex],
-                    onChange: (rowIndex) => _onChange(colIndex, rowIndex),
-                    itemCount: _helper.itemCount(colIndex),
-                    builder: (rowIndex) {
-                      var disabled = false;
-                      final maxDate = _helper.maxDate(
-                        _activeDate.value.month,
-                        _activeDate.value.year,
-                      );
-                      final itemCount = _helper.itemCount(colIndex);
-
-                      if (colIndex == 0) {
-                        final date = rowIndex % itemCount + 1;
-                        if (date > maxDate) disabled = true;
-                      }
-
-                      return Text(
-                        _helper.getText(colIndex, rowIndex % itemCount),
-                        style: disabled
-                            ? widget.style.disabledStyle
-                            : widget.style.activeStyle,
-                      );
-                    },
-                  ),
-                ),
+      child: Row(
+        children: List.generate(
+          3,
+          (colIndex) => Expanded(
+            child: PickerWidget(
+              itemExtent: widget.itemExtent,
+              infiniteScroll: widget.infiniteScroll,
+              controller: _controllers[colIndex],
+              onChange: (rowIndex) => _onChange(colIndex, rowIndex),
+              itemCount: _helper.itemCount(colIndex),
+              centerWidget: Container(
+                height: widget.itemExtent,
+                width: double.infinity,
+                decoration: _style.centerDecoration,
               ),
+              inactiveBuilder: (rowIndex) {
+                var disabled = false;
+                final maxDate = _helper.maxDate(
+                  _activeDate.value.month,
+                  _activeDate.value.year,
+                );
+                final itemCount = _helper.itemCount(colIndex);
+
+                if (colIndex == 0) {
+                  final date = rowIndex % itemCount + 1;
+                  if (date > maxDate) disabled = true;
+                }
+
+                return Text(
+                  _helper.getText(colIndex, rowIndex % itemCount),
+                  style: disabled ? _style.disabledStyle : _style.inactiveStyle,
+                );
+              },
+              activeBuilder: (rowIndex) {
+                var disabled = false;
+                final maxDate = _helper.maxDate(
+                  _activeDate.value.month,
+                  _activeDate.value.year,
+                );
+                final itemCount = _helper.itemCount(colIndex);
+
+                if (colIndex == 0) {
+                  final date = rowIndex % itemCount + 1;
+                  if (date > maxDate) disabled = true;
+                }
+
+                return Text(
+                  _helper.getText(colIndex, rowIndex % itemCount),
+                  style: disabled ? _style.disabledStyle : _style.activeStyle,
+                );
+              },
             ),
           ),
-
-          /* Center Border */
-          Container(
-            height: widget.itemExtent,
-            width: double.infinity,
-            decoration: widget.style.centerDecoration,
-          ),
-        ],
+        ),
       ),
     );
   }
