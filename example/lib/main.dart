@@ -33,6 +33,7 @@ class _MyHomePageState extends State<MyHomePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: Colors.white,
       appBar: AppBar(
         title: const Text('ScrollDatetimePicker'),
       ),
@@ -40,7 +41,7 @@ class _MyHomePageState extends State<MyHomePage> {
         children: [
           ScrollDatePicker(
             itemExtent: 54,
-            // infiniteScroll: true,
+            infiniteScroll: false,
             dateOption: DatePickerOption(
               minDate: DateTime(2000),
               initialDate: date,
@@ -49,6 +50,16 @@ class _MyHomePageState extends State<MyHomePage> {
             onChange: (datetime) => setState(() {
               date = datetime;
             }),
+            style: DatePickerStyle(
+              centerDecoration: const BoxDecoration(color: Colors.white),
+              activeStyle: TextStyle(
+                fontSize: 20,
+                color: Colors.blue[900],
+                fontWeight: FontWeight.w700,
+              ),
+              inactiveStyle: TextStyle(fontSize: 18, color: Colors.blue[600]),
+              disabledStyle: const TextStyle(fontSize: 18, color: Colors.grey),
+            ),
           ),
           const SizedBox(height: 20),
           Text(DateFormat('dd MMMM yyyy', 'id').format(date)),
