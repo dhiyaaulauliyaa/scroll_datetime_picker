@@ -1,4 +1,4 @@
-part of '../date_picker/scroll_date_picker.dart';
+part of '../scroll_date_time_picker.dart';
 
 enum _DateTimeType {
   year('year'),

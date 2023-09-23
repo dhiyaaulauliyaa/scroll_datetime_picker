@@ -1,3 +1,3 @@
 library scroll_datetime_picker;
 
-export 'src/date_picker/scroll_date_picker.dart';
+export 'src/scroll_date_time_picker.dart';

@@ -4,13 +4,13 @@ import 'package:intl/date_symbol_data_local.dart';
 import 'package:intl/intl.dart';
 import 'package:scroll_datetime_picker/src/widget/picker_widget.dart';
 
-part '../entities/enums.dart';
-part 'date_picker_helper.dart';
-part 'date_picker_option.dart';
-part 'date_picker_style.dart';
+part 'entities/enums.dart';
+part 'date_picker/date_picker_helper.dart';
+part 'date_picker/date_picker_option.dart';
+part 'date_picker/date_picker_style.dart';
 
-class ScrollDatePicker extends StatefulWidget {
-  const ScrollDatePicker({
+class ScrollDateTimePicker extends StatefulWidget {
+  const ScrollDateTimePicker({
     super.key,
     required this.itemExtent,
     required this.dateOption,
@@ -30,10 +30,10 @@ class ScrollDatePicker extends StatefulWidget {
   final DatePickerStyle? style;
 
   @override
-  State<ScrollDatePicker> createState() => _ScrollDatePickerState();
+  State<ScrollDateTimePicker> createState() => _ScrollDateTimePickerState();
 }
 
-class _ScrollDatePickerState extends State<ScrollDatePicker> {
+class _ScrollDateTimePickerState extends State<ScrollDateTimePicker> {
   late final List<ScrollController> _controllers;
   late final ValueNotifier<DateTime> _activeDate;
 

@@ -39,7 +39,7 @@ class _MyHomePageState extends State<MyHomePage> {
       ),
       body: Column(
         children: [
-          ScrollDatePicker(
+          ScrollDateTimePicker(
             itemExtent: 54,
             infiniteScroll: false,
             dateOption: DatePickerOption(
@@ -71,7 +71,7 @@ class _MyHomePageState extends State<MyHomePage> {
               await showModalBottomSheet<DateTime>(
                 context: context,
                 builder: (context) {
-                  return ScrollDatePicker(
+                  return ScrollDateTimePicker(
                     itemExtent: 54,
                     infiniteScroll: false,
                     dateOption: DatePickerOption(
