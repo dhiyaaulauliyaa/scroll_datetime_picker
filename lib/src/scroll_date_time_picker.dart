@@ -5,9 +5,9 @@ import 'package:intl/intl.dart';
 import 'package:scroll_datetime_picker/src/widget/picker_widget.dart';
 
 part 'entities/enums.dart';
-part 'date_picker/date_picker_helper.dart';
-part 'date_picker/date_picker_option.dart';
-part 'date_picker/date_picker_style.dart';
+part 'entities/date_picker_helper.dart';
+part 'entities/date_picker_option.dart';
+part 'entities/date_picker_style.dart';
 
 class ScrollDateTimePicker extends StatefulWidget {
   const ScrollDateTimePicker({
