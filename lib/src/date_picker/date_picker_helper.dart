@@ -1,11 +1,17 @@
 part of 'scroll_date_picker.dart';
 
 class _Helper {
-  const _Helper(this.dateOption);
-  final DatePickerOption dateOption;
+  const _Helper(this.option);
+  final DatePickerOption option;
 
-  int get _numOfYear =>
-      dateOption.getMaxDate.year - dateOption.getMinDate.year + 1;
+  bool isAM(int hour) => hour < 12;
+  int convertToHour12(int hour) => hour == 0
+      ? 12
+      : hour > 12
+          ? hour - 12
+          : hour;
+
+  int get _numOfYear => option.getMaxDate.year - option.getMinDate.year + 1;
 
   int maxDate(int month, int year) {
     switch (month) {
@@ -41,37 +47,79 @@ class _Helper {
 
   List<int> get years => List.generate(
         _numOfYear,
-        (index) => dateOption.getMinDate.year - 1 + index,
+        (index) => option.getMinDate.year - 1 + index,
       );
 
-  int itemCount(int index) {
-    switch (index) {
-      case 0:
-        return 31;
-      case 1:
-        return 12;
-      case 2:
+  int itemCount(_DateTimeType type) {
+    switch (type) {
+      case _DateTimeType.year:
         return _numOfYear;
-      default:
-        return 0;
+      case _DateTimeType.month:
+        return 12;
+      case _DateTimeType.day:
+        return 31;
+      case _DateTimeType.weekday:
+        return 7;
+      case _DateTimeType.hour24:
+        return 24;
+      case _DateTimeType.hour12:
+        return 12;
+      case _DateTimeType.minute:
+        return 60;
+      case _DateTimeType.second:
+        return 60;
+      case _DateTimeType.amPM:
+        return 2;
     }
   }
 
-  String getText(int colIndex, int rowIndex) {
-    switch (colIndex) {
-      case 0:
-        return '${rowIndex + 1}';
-      case 1:
+  String getText(_DateTimeType type, String pattern, int rowIndex) {
+    switch (type) {
+      case _DateTimeType.year:
         return DateFormat(
-          'MMMM',
-          dateOption.locale.languageCode,
-        ).format(
-          DateTime(2000, rowIndex + 1),
-        );
-      case 2:
-        return '${years[rowIndex]}';
-      default:
-        return '-';
+          pattern,
+          option.locale.languageCode,
+        ).format(DateTime(years[rowIndex]));
+      case _DateTimeType.month:
+        return DateFormat(
+          pattern,
+          option.locale.languageCode,
+        ).format(DateTime(2000, rowIndex + 1));
+      case _DateTimeType.day:
+        return DateFormat(
+          pattern,
+          option.locale.languageCode,
+        ).format(DateTime(2000, 1, rowIndex + 1));
+      case _DateTimeType.weekday:
+        return DateFormat(
+          pattern,
+          option.locale.languageCode,
+        ).format(DateTime(2000, 1, rowIndex + 3));
+      case _DateTimeType.hour24:
+        return DateFormat(
+          pattern,
+          option.locale.languageCode,
+        ).format(DateTime(2000, 1, 1, rowIndex));
+      case _DateTimeType.hour12:
+        return DateFormat(
+          pattern,
+          option.locale.languageCode,
+        ).format(DateTime(2000, 1, 1, rowIndex + 1));
+      case _DateTimeType.minute:
+        return DateFormat(
+          pattern,
+          option.locale.languageCode,
+        ).format(DateTime(2000, 1, 1, 0, rowIndex));
+      case _DateTimeType.second:
+        return DateFormat(
+          pattern,
+          option.locale.languageCode,
+        ).format(DateTime(2000, 1, 1, 0, 0, rowIndex));
+      case _DateTimeType.amPM:
+        return DateFormat(
+          pattern,
+          option.locale.languageCode,
+        ).format(DateTime(2000, 1, 1, rowIndex == 0 ? 6 : 18));
     }
   }
 }
@@ -91,5 +139,29 @@ extension LeapYearX on int {
     } else {
       return false;
     }
+  }
+}
+
+extension _DateTimeX on DateTime {
+  DateTime copyWith({
+    int? year,
+    int? month,
+    int? day,
+    int? hour,
+    int? minute,
+    int? second,
+    int? millisecond,
+    int? microsecond,
+  }) {
+    return DateTime(
+      year ?? this.year,
+      month ?? this.month,
+      day ?? this.day,
+      hour ?? this.hour,
+      minute ?? this.minute,
+      second ?? this.second,
+      millisecond ?? this.millisecond,
+      microsecond ?? this.microsecond,
+    );
   }
 }

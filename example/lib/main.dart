@@ -43,6 +43,7 @@ class _MyHomePageState extends State<MyHomePage> {
             itemExtent: 54,
             infiniteScroll: false,
             dateOption: DatePickerOption(
+              dateFormat: DateFormat('yMMMMdd'),
               minDate: DateTime(2000),
               initialDate: date,
               locale: const Locale('id', 'ID'),
@@ -62,7 +63,7 @@ class _MyHomePageState extends State<MyHomePage> {
             ),
           ),
           const SizedBox(height: 20),
-          Text(DateFormat('dd MMMM yyyy', 'id').format(date)),
+          Text(DateFormat('dd MMMM yyyy hh:mm a', 'id').format(date)),
           const SizedBox(height: 20),
           ElevatedButton(
             child: const Text('Show'),
@@ -74,6 +75,7 @@ class _MyHomePageState extends State<MyHomePage> {
                     itemExtent: 54,
                     infiniteScroll: false,
                     dateOption: DatePickerOption(
+                      dateFormat: DateFormat.yMMMMd(),
                       minDate: DateTime(2000),
                       initialDate: date,
                       locale: const Locale('id', 'ID'),

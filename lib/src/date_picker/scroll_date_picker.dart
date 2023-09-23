@@ -4,6 +4,7 @@ import 'package:intl/date_symbol_data_local.dart';
 import 'package:intl/intl.dart';
 import 'package:scroll_datetime_picker/src/widget/picker_widget.dart';
 
+part '../entities/enums.dart';
 part 'date_picker_helper.dart';
 part 'date_picker_option.dart';
 part 'date_picker_style.dart';
@@ -12,11 +13,11 @@ class ScrollDatePicker extends StatefulWidget {
   const ScrollDatePicker({
     super.key,
     required this.itemExtent,
+    required this.dateOption,
     this.style,
     this.onChange,
     this.visibleItem = 3,
     this.infiniteScroll = true,
-    this.dateOption = const DatePickerOption(),
   });
 
   final double itemExtent;
@@ -33,10 +34,11 @@ class ScrollDatePicker extends StatefulWidget {
 }
 
 class _ScrollDatePickerState extends State<ScrollDatePicker> {
-  final _controllers = List.generate(3, (index) => ScrollController());
+  late final List<ScrollController> _controllers;
   late final ValueNotifier<DateTime> _activeDate;
 
   late final DatePickerStyle _style;
+  late final DatePickerOption _option;
   late _Helper _helper;
 
   @override
@@ -45,9 +47,14 @@ class _ScrollDatePickerState extends State<ScrollDatePicker> {
 
     initializeDateFormatting(widget.dateOption.locale.languageCode);
 
-    _activeDate = ValueNotifier<DateTime>(widget.dateOption.getInitialDate);
-    _helper = _Helper(widget.dateOption);
+    _option = widget.dateOption;
+    _activeDate = ValueNotifier<DateTime>(_option.getInitialDate);
+    _helper = _Helper(_option);
     _style = widget.style ?? DatePickerStyle();
+    _controllers = List.generate(
+      _option.patterns.length,
+      (index) => ScrollController(),
+    );
 
     SchedulerBinding.instance.addPostFrameCallback((_) {
       _initDate();
@@ -71,77 +78,101 @@ class _ScrollDatePickerState extends State<ScrollDatePicker> {
       height: widget.itemExtent * widget.visibleItem,
       child: Row(
         children: List.generate(
-          3,
-          (colIndex) => Expanded(
-            child: PickerWidget(
-              itemExtent: widget.itemExtent,
-              infiniteScroll: widget.infiniteScroll,
-              controller: _controllers[colIndex],
-              onChange: (rowIndex) => _onChange(colIndex, rowIndex),
-              itemCount: _helper.itemCount(colIndex),
-              centerWidget: Container(
-                height: widget.itemExtent,
-                width: double.infinity,
-                decoration: _style.centerDecoration,
+          _option.patterns.length,
+          (colIndex) {
+            final pattern = _option.patterns[colIndex];
+            final type = _DateTimeType.fromPattern(pattern);
+
+            return Expanded(
+              child: PickerWidget(
+                itemExtent: widget.itemExtent,
+                infiniteScroll: widget.infiniteScroll,
+                controller: _controllers[colIndex],
+                onChange: (rowIndex) => _onChange(type, rowIndex),
+                itemCount: _helper.itemCount(type),
+                centerWidget: Container(
+                  height: widget.itemExtent,
+                  width: double.infinity,
+                  decoration: _style.centerDecoration,
+                ),
+                inactiveBuilder: (rowIndex) {
+                  var disabled = false;
+                  final maxDate = _helper.maxDate(
+                    _activeDate.value.month,
+                    _activeDate.value.year,
+                  );
+                  final itemCount = _helper.itemCount(type);
+
+                  if (type == _DateTimeType.day) {
+                    final date = rowIndex % itemCount + 1;
+                    if (date > maxDate) disabled = true;
+                  }
+
+                  return Text(
+                    _helper.getText(type, pattern, rowIndex % itemCount),
+                    style:
+                        disabled ? _style.disabledStyle : _style.inactiveStyle,
+                  );
+                },
+                activeBuilder: (rowIndex) {
+                  var disabled = false;
+                  final maxDate = _helper.maxDate(
+                    _activeDate.value.month,
+                    _activeDate.value.year,
+                  );
+                  final itemCount = _helper.itemCount(type);
+
+                  if (colIndex == 0) {
+                    final date = rowIndex % itemCount + 1;
+                    if (date > maxDate) disabled = true;
+                  }
+
+                  return Text(
+                    _helper.getText(type, pattern, rowIndex % itemCount),
+                    style: disabled ? _style.disabledStyle : _style.activeStyle,
+                  );
+                },
               ),
-              inactiveBuilder: (rowIndex) {
-                var disabled = false;
-                final maxDate = _helper.maxDate(
-                  _activeDate.value.month,
-                  _activeDate.value.year,
-                );
-                final itemCount = _helper.itemCount(colIndex);
-
-                if (colIndex == 0) {
-                  final date = rowIndex % itemCount + 1;
-                  if (date > maxDate) disabled = true;
-                }
-
-                return Text(
-                  _helper.getText(colIndex, rowIndex % itemCount),
-                  style: disabled ? _style.disabledStyle : _style.inactiveStyle,
-                );
-              },
-              activeBuilder: (rowIndex) {
-                var disabled = false;
-                final maxDate = _helper.maxDate(
-                  _activeDate.value.month,
-                  _activeDate.value.year,
-                );
-                final itemCount = _helper.itemCount(colIndex);
-
-                if (colIndex == 0) {
-                  final date = rowIndex % itemCount + 1;
-                  if (date > maxDate) disabled = true;
-                }
-
-                return Text(
-                  _helper.getText(colIndex, rowIndex % itemCount),
-                  style: disabled ? _style.disabledStyle : _style.activeStyle,
-                );
-              },
-            ),
-          ),
+            );
+          },
         ),
       ),
     );
   }
 
   void _initDate() {
-    for (var i = 0; i < 3; i++) {
+    final activeDate = _activeDate.value;
+
+    for (var i = 0; i < _option.dateTimeTypes.length; i++) {
       late double extent;
 
-      switch (i) {
-        case 0:
-          extent = _activeDate.value.day - 1;
+      switch (_option.dateTimeTypes[i]) {
+        case _DateTimeType.year:
+          extent = (_helper.years.indexOf(activeDate.year)).toDouble();
           break;
-        case 1:
-          extent = _activeDate.value.month - 1;
+        case _DateTimeType.month:
+          extent = activeDate.month - 1;
           break;
-        case 2:
-          extent = (_helper.years.indexOf(_activeDate.value.year)).toDouble();
+        case _DateTimeType.day:
+          extent = activeDate.day - 1;
           break;
-        default:
+        case _DateTimeType.weekday:
+          extent = activeDate.weekday - 1;
+          break;
+        case _DateTimeType.hour24:
+          extent = activeDate.hour - 1;
+          break;
+        case _DateTimeType.hour12:
+          extent = _helper.convertToHour12(activeDate.hour) - 1;
+          break;
+        case _DateTimeType.minute:
+          extent = activeDate.minute.toDouble();
+          break;
+        case _DateTimeType.second:
+          extent = activeDate.second.toDouble();
+          break;
+        case _DateTimeType.amPM:
+          extent = _helper.isAM(activeDate.hour) ? 0 : 1;
           break;
       }
 
@@ -153,60 +184,123 @@ class _ScrollDatePickerState extends State<ScrollDatePicker> {
     }
   }
 
-  void _onChange(int colIndex, int rowIndex) {
+  void _onChange(_DateTimeType type, int rowIndex) {
     late DateTime newDate;
+    final activeDate = _activeDate.value;
 
-    switch (colIndex) {
-      case 0:
+    switch (type) {
+      case _DateTimeType.year:
+        var newDay = activeDate.day;
+        final newYear = _helper.years[rowIndex];
+        final maxDate = _helper.maxDate(activeDate.month, newYear);
+
+        if (newDay > maxDate) newDay = maxDate;
+
+        newDate = activeDate.copyWith(year: newYear, day: newDay);
+        break;
+      case _DateTimeType.month:
+        var newDay = activeDate.day;
+        final newMonth = rowIndex + 1;
+        final maxDate = _helper.maxDate(newMonth, activeDate.year);
+
+        if (newDay > maxDate) newDay = maxDate;
+
+        newDate = activeDate.copyWith(month: newMonth, day: newDay);
+        break;
+      case _DateTimeType.day:
         var newDay = rowIndex + 1;
         final maxDate = _helper.maxDate(
-          _activeDate.value.month,
-          _activeDate.value.year,
+          activeDate.month,
+          activeDate.year,
         );
 
         if (newDay > maxDate) newDay = maxDate;
-
-        newDate = DateTime(
-          _activeDate.value.year,
-          _activeDate.value.month,
-          newDay,
-        );
+        newDate = activeDate.copyWith(day: newDay);
         break;
-      case 1:
-        var newDay = _activeDate.value.day;
-        final newMonth = rowIndex + 1;
-        final maxDate = _helper.maxDate(newMonth, _activeDate.value.year);
-
-        if (newDay > maxDate) newDay = maxDate;
-
-        newDate = DateTime(_activeDate.value.year, newMonth, newDay);
+      case _DateTimeType.weekday:
+        final oldDay = activeDate.weekday;
+        final newDay = rowIndex + 1;
+        final difference = newDay - oldDay;
+        newDate = newDay > oldDay
+            ? activeDate.add(Duration(days: difference.abs()))
+            : activeDate.subtract(Duration(days: difference.abs()));
         break;
-      case 2:
-        var newDay = _activeDate.value.day;
-        final newYear = _helper.years[rowIndex];
-        final maxDate = _helper.maxDate(_activeDate.value.month, newYear);
-
-        if (newDay > maxDate) newDay = maxDate;
-
-        newDate = DateTime(newYear, _activeDate.value.month, newDay);
+      case _DateTimeType.hour24:
+        newDate = activeDate.copyWith(hour: rowIndex);
         break;
-      default:
+      case _DateTimeType.hour12:
+        final hour = activeDate.hour;
+        final isAM = _helper.isAM(hour);
+
+        var newHour = rowIndex + 1 + (isAM ? 0 : 12);
+        if (isAM && newHour == 12) newHour = 0;
+        if (!isAM && newHour == 24) newHour = 12;
+
+        newDate = activeDate.copyWith(hour: newHour);
+        break;
+      case _DateTimeType.minute:
+        newDate = activeDate.copyWith(minute: rowIndex);
+        break;
+      case _DateTimeType.second:
+        newDate = activeDate.copyWith(second: rowIndex);
+        break;
+      case _DateTimeType.amPM:
+        final hour = activeDate.hour;
+        final isAM = _helper.isAM(hour);
+        var newHour = hour;
+
+        // AM
+        if (rowIndex == 0 && !isAM) newHour = hour - 12;
+
+        // PM
+        if (rowIndex == 1 && isAM) newHour = hour + 12;
+
+        newDate = activeDate.copyWith(hour: newHour);
         break;
     }
 
     /* ReCheck day value */
-    if (_controllers[0].hasClients) {
+    final dayIndex = _option.dateTimeTypes.indexOf(_DateTimeType.day);
+    if (dayIndex != -1) {
+      _fixPosition(
+        controller: _controllers[dayIndex],
+        itemCount: 31,
+        targetPosition: newDate.day,
+      );
+    }
+    /* ReCheck weekday value */
+    final weekdayIndex = _option.dateTimeTypes.indexOf(_DateTimeType.weekday);
+    if (weekdayIndex != -1 && type != _DateTimeType.weekday) {
+      _fixPosition(
+        controller: _controllers[weekdayIndex],
+        itemCount: 7,
+        targetPosition: newDate.weekday,
+      );
+    }
+
+    /* Set new date */
+    _activeDate.value = newDate;
+    widget.onChange?.call(newDate);
+
+    return;
+  }
+
+  void _fixPosition({
+    required ScrollController controller,
+    required int itemCount,
+    required int targetPosition,
+  }) {
+    if (controller.hasClients) {
       final dayScrollPosition =
-          (_controllers[0].offset / widget.itemExtent).floor() % 31 + 1;
+          (controller.offset / widget.itemExtent).floor() % itemCount + 1;
 
-      if (newDate.day != dayScrollPosition) {
-        final difference = dayScrollPosition - newDate.day;
-        final endOffset =
-            _controllers[0].offset - (difference * widget.itemExtent);
+      if (targetPosition != dayScrollPosition) {
+        final difference = dayScrollPosition - targetPosition;
+        final endOffset = controller.offset - (difference * widget.itemExtent);
 
-        if (!_controllers[0].position.isScrollingNotifier.value) {
+        if (!controller.position.isScrollingNotifier.value) {
           Future.delayed(Duration.zero, () {
-            _controllers[0].animateTo(
+            controller.animateTo(
               endOffset,
               duration: const Duration(milliseconds: 500),
               curve: Curves.bounceOut,
@@ -215,11 +309,5 @@ class _ScrollDatePickerState extends State<ScrollDatePicker> {
         }
       }
     }
-
-    /* Set new date */
-    _activeDate.value = newDate;
-    widget.onChange?.call(newDate);
-
-    return;
   }
 }
