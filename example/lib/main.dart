@@ -42,7 +42,7 @@ class _MyHomePageState extends State<MyHomePage> {
           ScrollDateTimePicker(
             itemExtent: 54,
             infiniteScroll: false,
-            dateOption: DatePickerOption(
+            dateOption: DateTimePickerOption(
               dateFormat: DateFormat('yMMMMdd'),
               minDate: DateTime(2000),
               initialDate: date,
@@ -51,7 +51,7 @@ class _MyHomePageState extends State<MyHomePage> {
             onChange: (datetime) => setState(() {
               date = datetime;
             }),
-            style: DatePickerStyle(
+            style: DateTimePickerStyle(
               centerDecoration: const BoxDecoration(color: Colors.white),
               activeStyle: TextStyle(
                 fontSize: 20,
@@ -74,7 +74,7 @@ class _MyHomePageState extends State<MyHomePage> {
                   return ScrollDateTimePicker(
                     itemExtent: 54,
                     infiniteScroll: false,
-                    dateOption: DatePickerOption(
+                    dateOption: DateTimePickerOption(
                       dateFormat: DateFormat.yMMMMd(),
                       minDate: DateTime(2000),
                       initialDate: date,

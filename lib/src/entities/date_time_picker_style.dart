@@ -1,7 +1,7 @@
 part of '../scroll_date_time_picker.dart';
 
-class DatePickerStyle {
-  DatePickerStyle({
+class DateTimePickerStyle {
+  DateTimePickerStyle({
     this.activeStyle,
     this.inactiveStyle,
     this.activeDecoration,

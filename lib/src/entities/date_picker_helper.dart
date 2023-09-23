@@ -2,7 +2,7 @@ part of '../scroll_date_time_picker.dart';
 
 class _Helper {
   const _Helper(this.option);
-  final DatePickerOption option;
+  final DateTimePickerOption option;
 
   bool isAM(int hour) => hour < 12;
   int convertToHour12(int hour) => hour == 0

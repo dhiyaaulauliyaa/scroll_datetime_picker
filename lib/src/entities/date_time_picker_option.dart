@@ -1,7 +1,7 @@
 part of '../scroll_date_time_picker.dart';
 
-class DatePickerOption {
-  const DatePickerOption({
+class DateTimePickerOption {
+  const DateTimePickerOption({
     required this.dateFormat,
     this.minDate,
     this.maxDate,
@@ -20,7 +20,7 @@ class DatePickerOption {
   DateTime get getInitialDate => initialDate ?? DateTime.now();
 }
 
-extension _DatePickerOptionX on DatePickerOption {
+extension _DatePickerOptionX on DateTimePickerOption {
   List<String> get patterns {
     if (dateFormat.pattern == null) {
       throw Exception('DateFormat is not valid: $dateFormat');

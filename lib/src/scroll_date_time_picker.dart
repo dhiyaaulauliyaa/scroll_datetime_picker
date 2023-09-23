@@ -6,8 +6,8 @@ import 'package:scroll_datetime_picker/src/widget/picker_widget.dart';
 
 part 'entities/enums.dart';
 part 'entities/date_picker_helper.dart';
-part 'entities/date_picker_option.dart';
-part 'entities/date_picker_style.dart';
+part 'entities/date_time_picker_option.dart';
+part 'entities/date_time_picker_style.dart';
 
 class ScrollDateTimePicker extends StatefulWidget {
   const ScrollDateTimePicker({
@@ -26,8 +26,8 @@ class ScrollDateTimePicker extends StatefulWidget {
 
   final void Function(DateTime datetime)? onChange;
 
-  final DatePickerOption dateOption;
-  final DatePickerStyle? style;
+  final DateTimePickerOption dateOption;
+  final DateTimePickerStyle? style;
 
   @override
   State<ScrollDateTimePicker> createState() => _ScrollDateTimePickerState();
@@ -37,8 +37,8 @@ class _ScrollDateTimePickerState extends State<ScrollDateTimePicker> {
   late final List<ScrollController> _controllers;
   late final ValueNotifier<DateTime> _activeDate;
 
-  late final DatePickerStyle _style;
-  late final DatePickerOption _option;
+  late final DateTimePickerStyle _style;
+  late final DateTimePickerOption _option;
   late _Helper _helper;
 
   @override
@@ -50,7 +50,7 @@ class _ScrollDateTimePickerState extends State<ScrollDateTimePicker> {
     _option = widget.dateOption;
     _activeDate = ValueNotifier<DateTime>(_option.getInitialDate);
     _helper = _Helper(_option);
-    _style = widget.style ?? DatePickerStyle();
+    _style = widget.style ?? DateTimePickerStyle();
     _controllers = List.generate(
       _option.patterns.length,
       (index) => ScrollController(),
