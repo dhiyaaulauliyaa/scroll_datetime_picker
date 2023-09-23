@@ -2,12 +2,14 @@ import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:intl/date_symbol_data_local.dart';
 import 'package:intl/intl.dart';
-import 'package:scroll_datetime_picker/src/widget/picker_widget.dart';
 
 part 'entities/enums.dart';
 part 'entities/date_picker_helper.dart';
 part 'entities/date_time_picker_option.dart';
 part 'entities/date_time_picker_style.dart';
+
+part 'widgets/picker_widget.dart';
+part 'widgets/scroll_type_listener.dart';
 
 class ScrollDateTimePicker extends StatefulWidget {
   const ScrollDateTimePicker({
@@ -84,7 +86,7 @@ class _ScrollDateTimePickerState extends State<ScrollDateTimePicker> {
             final type = _DateTimeType.fromPattern(pattern);
 
             return Expanded(
-              child: PickerWidget(
+              child: _PickerWidget(
                 itemExtent: widget.itemExtent,
                 infiniteScroll: widget.infiniteScroll,
                 controller: _controllers[colIndex],

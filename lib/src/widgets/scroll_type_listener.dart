@@ -1,9 +1,7 @@
-import 'package:collection/collection.dart';
-import 'package:flutter/material.dart';
+part of '../scroll_date_time_picker.dart';
 
-class ScrollTypeListener extends StatelessWidget {
-  ScrollTypeListener({
-    super.key,
+class _ScrollTypeListener extends StatelessWidget {
+  _ScrollTypeListener({
     required this.child,
     required this.onScroll,
   });
@@ -29,7 +27,7 @@ class ScrollTypeListener extends StatelessWidget {
 
         if (notification is ScrollUpdateNotification) {
           onScroll.call(
-            scrollSequence.value.lastOrNull != UserScrollNotification,
+            (scrollSequence.value.last) != UserScrollNotification,
           );
         }
 
