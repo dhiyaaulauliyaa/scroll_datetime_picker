@@ -97,41 +97,34 @@ class _ScrollDateTimePickerState extends State<ScrollDateTimePicker> {
                   width: double.infinity,
                   decoration: _style.centerDecoration,
                 ),
-                inactiveBuilder: (rowIndex) {
-                  var disabled = false;
-                  final maxDate = _helper.maxDate(
-                    _activeDate.value.month,
-                    _activeDate.value.year,
-                  );
-                  final itemCount = _helper.itemCount(type);
-
-                  if (type == _DateTimeType.day) {
-                    final date = rowIndex % itemCount + 1;
-                    if (date > maxDate) disabled = true;
-                  }
-
-                  return Text(
-                    _helper.getText(type, pattern, rowIndex % itemCount),
-                    style:
-                        disabled ? _style.disabledStyle : _style.inactiveStyle,
-                  );
-                },
+                inactiveBuilder: (rowIndex) => Text(
+                  _helper.getText(
+                    type,
+                    pattern,
+                    rowIndex % _helper.itemCount(type),
+                  ),
+                  style: _helper.isTextDisabled(
+                    type,
+                    _activeDate.value,
+                    rowIndex,
+                  )
+                      ? _style.disabledStyle
+                      : _style.inactiveStyle,
+                ),
                 activeBuilder: (rowIndex) {
-                  var disabled = false;
-                  final maxDate = _helper.maxDate(
-                    _activeDate.value.month,
-                    _activeDate.value.year,
-                  );
-                  final itemCount = _helper.itemCount(type);
-
-                  if (colIndex == 0) {
-                    final date = rowIndex % itemCount + 1;
-                    if (date > maxDate) disabled = true;
-                  }
-
                   return Text(
-                    _helper.getText(type, pattern, rowIndex % itemCount),
-                    style: disabled ? _style.disabledStyle : _style.activeStyle,
+                    _helper.getText(
+                      type,
+                      pattern,
+                      rowIndex % _helper.itemCount(type),
+                    ),
+                    style: _helper.isTextDisabled(
+                      type,
+                      _activeDate.value,
+                      rowIndex,
+                    )
+                        ? _style.disabledStyle
+                        : _style.activeStyle,
                   );
                 },
               ),
@@ -187,92 +180,20 @@ class _ScrollDateTimePickerState extends State<ScrollDateTimePicker> {
   }
 
   void _onChange(_DateTimeType type, int rowIndex) {
-    late DateTime newDate;
-    final activeDate = _activeDate.value;
+    var newDate = _helper.getDateFromRowIndex(
+      type: type,
+      rowIndex: rowIndex,
+      activeDate: _activeDate.value,
+    );
 
-    switch (type) {
-      case _DateTimeType.year:
-        var newDay = activeDate.day;
-        final newYear = _helper.years[rowIndex];
-        final maxDate = _helper.maxDate(activeDate.month, newYear);
+    if (newDate.isAfter(_option.maxDate)) newDate = _activeDate.value;
+    if (newDate.isBefore(_option.minDate)) newDate = _activeDate.value;
 
-        if (newDay > maxDate) newDay = maxDate;
-
-        newDate = activeDate.copyWith(year: newYear, day: newDay);
-        break;
-      case _DateTimeType.month:
-        var newDay = activeDate.day;
-        final newMonth = rowIndex + 1;
-        final maxDate = _helper.maxDate(newMonth, activeDate.year);
-
-        if (newDay > maxDate) newDay = maxDate;
-
-        newDate = activeDate.copyWith(month: newMonth, day: newDay);
-        break;
-      case _DateTimeType.day:
-        var newDay = rowIndex + 1;
-        final maxDate = _helper.maxDate(
-          activeDate.month,
-          activeDate.year,
-        );
-
-        if (newDay > maxDate) newDay = maxDate;
-        newDate = activeDate.copyWith(day: newDay);
-        break;
-      case _DateTimeType.weekday:
-        final oldDay = activeDate.weekday;
-        final newDay = rowIndex + 1;
-        final difference = newDay - oldDay;
-        newDate = newDay > oldDay
-            ? activeDate.add(Duration(days: difference.abs()))
-            : activeDate.subtract(Duration(days: difference.abs()));
-
-        if (newDate.isAfter(_option.getMaxDate)) newDate = _option.getMaxDate;
-        if (newDate.isBefore(_option.getMinDate)) newDate = _option.getMinDate;
-        break;
-      case _DateTimeType.hour24:
-        newDate = activeDate.copyWith(hour: rowIndex);
-        break;
-      case _DateTimeType.hour12:
-        final hour = activeDate.hour;
-        final isAM = _helper.isAM(hour);
-
-        var newHour = rowIndex + 1 + (isAM ? 0 : 12);
-        if (isAM && newHour == 12) newHour = 0;
-        if (!isAM && newHour == 24) newHour = 12;
-
-        newDate = activeDate.copyWith(hour: newHour);
-        break;
-      case _DateTimeType.minute:
-        newDate = activeDate.copyWith(minute: rowIndex);
-        break;
-      case _DateTimeType.second:
-        newDate = activeDate.copyWith(second: rowIndex);
-        break;
-      case _DateTimeType.amPM:
-        final hour = activeDate.hour;
-        final isAM = _helper.isAM(hour);
-        var newHour = hour;
-
-        // AM
-        if (rowIndex == 0 && !isAM) newHour = hour - 12;
-
-        // PM
-        if (rowIndex == 1 && isAM) newHour = hour + 12;
-
-        newDate = activeDate.copyWith(hour: newHour);
-        break;
-    }
-
-    /* Recheck day & weekday positions */
+    /* Recheck positions */
+    _recheckPosition(_DateTimeType.year, newDate);
+    _recheckPosition(_DateTimeType.month, newDate);
     _recheckPosition(_DateTimeType.day, newDate);
     _recheckPosition(_DateTimeType.weekday, newDate);
-
-    /* Recheck year & month position (only needed when weekday is moved) */
-    if (type == _DateTimeType.weekday) {
-      _recheckPosition(_DateTimeType.month, newDate);
-      _recheckPosition(_DateTimeType.year, newDate);
-    }
 
     /* Set new date */
     _activeDate.value = newDate;

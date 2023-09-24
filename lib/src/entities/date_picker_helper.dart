@@ -13,7 +13,7 @@ class _Helper {
 
   int get _numOfYear => option.getMaxDate.year - option.getMinDate.year + 1;
 
-  int maxDate(int month, int year) {
+  int maxDay(int month, int year) {
     switch (month) {
       case 1:
         return 31;
@@ -47,7 +47,7 @@ class _Helper {
 
   List<int> get years => List.generate(
         _numOfYear,
-        (index) => option.getMinDate.year - 1 + index,
+        (index) => option.getMinDate.year + index,
       );
 
   int itemCount(_DateTimeType type) {
@@ -121,6 +121,109 @@ class _Helper {
           option.locale.languageCode,
         ).format(DateTime(2000, 1, 1, rowIndex == 0 ? 6 : 18));
     }
+  }
+
+  DateTime getDateFromRowIndex({
+    required _DateTimeType type,
+    required DateTime activeDate,
+    required int rowIndex,
+  }) {
+    late DateTime newDate;
+
+    switch (type) {
+      case _DateTimeType.year:
+        var newDay = activeDate.day;
+        final newYear = years[rowIndex];
+        final newMaxDay = maxDay(activeDate.month, newYear);
+
+        if (newDay > newMaxDay) newDay = newMaxDay;
+
+        newDate = activeDate.copyWith(year: newYear, day: newDay);
+        break;
+      case _DateTimeType.month:
+        var newDay = activeDate.day;
+        final newMonth = rowIndex + 1;
+        final newMaxDay = maxDay(newMonth, activeDate.year);
+
+        if (newDay > newMaxDay) newDay = newMaxDay;
+
+        newDate = activeDate.copyWith(month: newMonth, day: newDay);
+        break;
+      case _DateTimeType.day:
+        var newDay = rowIndex + 1;
+        final newMaxDay = maxDay(
+          activeDate.month,
+          activeDate.year,
+        );
+
+        if (newDay > newMaxDay) newDay = newMaxDay;
+        newDate = activeDate.copyWith(day: newDay);
+        break;
+      case _DateTimeType.weekday:
+        final oldDay = activeDate.weekday;
+        final newDay = rowIndex + 1;
+        final difference = newDay - oldDay;
+        newDate = newDay > oldDay
+            ? activeDate.add(Duration(days: difference.abs()))
+            : activeDate.subtract(Duration(days: difference.abs()));
+
+        break;
+      case _DateTimeType.hour24:
+        newDate = activeDate.copyWith(hour: rowIndex);
+        break;
+      case _DateTimeType.hour12:
+        final hour = activeDate.hour;
+        final newIsAM = isAM(hour);
+
+        var newHour = rowIndex + 1 + (newIsAM ? 0 : 12);
+        if (newIsAM && newHour == 12) newHour = 0;
+        if (!newIsAM && newHour == 24) newHour = 12;
+
+        newDate = activeDate.copyWith(hour: newHour);
+        break;
+      case _DateTimeType.minute:
+        newDate = activeDate.copyWith(minute: rowIndex);
+        break;
+      case _DateTimeType.second:
+        newDate = activeDate.copyWith(second: rowIndex);
+        break;
+      case _DateTimeType.amPM:
+        final hour = activeDate.hour;
+        final newIsAM = isAM(hour);
+        var newHour = hour;
+
+        // AM
+        if (rowIndex == 0 && !newIsAM) newHour = hour - 12;
+
+        // PM
+        if (rowIndex == 1 && newIsAM) newHour = hour + 12;
+
+        newDate = activeDate.copyWith(hour: newHour);
+        break;
+    }
+
+    return newDate;
+  }
+
+  bool isTextDisabled(_DateTimeType type, DateTime activeDate, int rowIndex) {
+    // Check if day is valid
+    if (type == _DateTimeType.day) {
+      final newMaxDay = maxDay(
+        activeDate.month,
+        activeDate.year,
+      );
+      final day = rowIndex % itemCount(type) + 1;
+      if (day > newMaxDay) return true;
+    }
+
+    // Check if date is out of range
+    final date = getDateFromRowIndex(
+      type: type,
+      activeDate: activeDate,
+      rowIndex: rowIndex,
+    );
+
+    return date.isAfter(option.getMaxDate) || date.isBefore(option.getMinDate);
   }
 }
 
