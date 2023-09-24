@@ -226,6 +226,9 @@ class _ScrollDateTimePickerState extends State<ScrollDateTimePicker> {
         newDate = newDay > oldDay
             ? activeDate.add(Duration(days: difference.abs()))
             : activeDate.subtract(Duration(days: difference.abs()));
+
+        if (newDate.isAfter(_option.getMaxDate)) newDate = _option.getMaxDate;
+        if (newDate.isBefore(_option.getMinDate)) newDate = _option.getMinDate;
         break;
       case _DateTimeType.hour24:
         newDate = activeDate.copyWith(hour: rowIndex);
@@ -261,23 +264,14 @@ class _ScrollDateTimePickerState extends State<ScrollDateTimePicker> {
         break;
     }
 
-    /* ReCheck day value */
-    final dayIndex = _option.dateTimeTypes.indexOf(_DateTimeType.day);
-    if (dayIndex != -1) {
-      _fixPosition(
-        controller: _controllers[dayIndex],
-        itemCount: 31,
-        targetPosition: newDate.day,
-      );
-    }
-    /* ReCheck weekday value */
-    final weekdayIndex = _option.dateTimeTypes.indexOf(_DateTimeType.weekday);
-    if (weekdayIndex != -1 && type != _DateTimeType.weekday) {
-      _fixPosition(
-        controller: _controllers[weekdayIndex],
-        itemCount: 7,
-        targetPosition: newDate.weekday,
-      );
+    /* Recheck day & weekday positions */
+    _recheckPosition(_DateTimeType.day, newDate);
+    _recheckPosition(_DateTimeType.weekday, newDate);
+
+    /* Recheck year & month position (only needed when weekday is moved) */
+    if (type == _DateTimeType.weekday) {
+      _recheckPosition(_DateTimeType.month, newDate);
+      _recheckPosition(_DateTimeType.year, newDate);
     }
 
     /* Set new date */
@@ -287,17 +281,46 @@ class _ScrollDateTimePickerState extends State<ScrollDateTimePicker> {
     return;
   }
 
+  void _recheckPosition(_DateTimeType type, DateTime date) {
+    final index = _option.dateTimeTypes.indexOf(type);
+    if (index != -1) {
+      late int targetPosition;
+
+      switch (type) {
+        case _DateTimeType.year:
+          targetPosition = _helper.years.indexOf(date.year) + 1;
+          break;
+        case _DateTimeType.month:
+          targetPosition = date.month;
+          break;
+        case _DateTimeType.day:
+          targetPosition = date.day;
+          break;
+        case _DateTimeType.weekday:
+          targetPosition = date.weekday;
+          break;
+        default:
+          break;
+      }
+      _fixPosition(
+        controller: _controllers[index],
+        itemCount: _helper.itemCount(type),
+        targetPosition: targetPosition,
+      );
+    }
+  }
+
   void _fixPosition({
     required ScrollController controller,
     required int itemCount,
     required int targetPosition,
   }) {
     if (controller.hasClients) {
-      final dayScrollPosition =
+      final scrollPosition =
           (controller.offset / widget.itemExtent).floor() % itemCount + 1;
 
-      if (targetPosition != dayScrollPosition) {
-        final difference = dayScrollPosition - targetPosition;
+      if (targetPosition != scrollPosition) {
+        final difference = scrollPosition - targetPosition;
         final endOffset = controller.offset - (difference * widget.itemExtent);
 
         if (!controller.position.isScrollingNotifier.value) {
