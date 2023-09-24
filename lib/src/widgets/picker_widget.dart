@@ -120,20 +120,21 @@ class _PickerWidgetState extends State<_PickerWidget> {
         /* Return if scrollView is still scrolling */
         if (widget.controller.position.isScrollingNotifier.value) return true;
 
-        if (widget.controller.hasClients) {
-          final allowChange = !_isProgrammaticScroll.value;
-          final rowIndex =
-              (endExtent / widget.itemExtent).floor() % widget.itemCount;
+        /* Return if controller doesn't have client */
+        if (!widget.controller.hasClients) return true;
 
-          await widget.controller.animateTo(
-            endExtent,
-            duration: const Duration(milliseconds: 500),
-            curve: Curves.bounceOut,
-          );
+        final allowChange = !_isProgrammaticScroll.value;
+        final rowIndex =
+            (endExtent / widget.itemExtent).floor() % widget.itemCount;
 
-          if (allowChange) {
-            widget.onChange.call(rowIndex);
-          }
+        await widget.controller.animateTo(
+          endExtent,
+          duration: const Duration(milliseconds: 500),
+          curve: Curves.bounceOut,
+        );
+
+        if (allowChange) {
+          widget.onChange.call(rowIndex);
         }
       });
     }
