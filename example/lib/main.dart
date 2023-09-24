@@ -35,7 +35,7 @@ class _MyHomePageState extends State<MyHomePage> {
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: AppBar(
-        title: const Text('ScrollDatetimePicker'),
+        title: const Text('ScrollDateTimePicker'),
       ),
       body: Column(
         children: [
@@ -43,8 +43,9 @@ class _MyHomePageState extends State<MyHomePage> {
             itemExtent: 54,
             infiniteScroll: false,
             dateOption: DateTimePickerOption(
-              dateFormat: DateFormat('yMMMMdd'),
-              minDate: DateTime(2000),
+              dateFormat: DateFormat('EddMMMy'),
+              minDate: DateTime(2000, 6),
+              maxDate: DateTime(2024, 6),
               initialDate: date,
               locale: const Locale('id', 'ID'),
             ),
@@ -63,7 +64,7 @@ class _MyHomePageState extends State<MyHomePage> {
             ),
           ),
           const SizedBox(height: 20),
-          Text(DateFormat('dd MMMM yyyy hh:mm a', 'id').format(date)),
+          Text(DateFormat('EEEE dd MMMM yyyy hh:mm a', 'id').format(date)),
           const SizedBox(height: 20),
           ElevatedButton(
             child: const Text('Show'),
@@ -77,6 +78,7 @@ class _MyHomePageState extends State<MyHomePage> {
                     dateOption: DateTimePickerOption(
                       dateFormat: DateFormat.yMMMMd(),
                       minDate: DateTime(2000),
+                      maxDate: DateTime.now().add(Duration(days: 365)),
                       initialDate: date,
                       locale: const Locale('id', 'ID'),
                     ),

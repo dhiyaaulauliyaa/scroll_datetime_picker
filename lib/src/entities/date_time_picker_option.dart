@@ -3,20 +3,18 @@ part of '../scroll_date_time_picker.dart';
 class DateTimePickerOption {
   const DateTimePickerOption({
     required this.dateFormat,
-    this.minDate,
-    this.maxDate,
+    required this.minDate,
+    required this.maxDate,
     this.initialDate,
     this.locale = const Locale('en', 'US'),
   });
 
   final DateFormat dateFormat;
-  final DateTime? minDate;
-  final DateTime? maxDate;
+  final DateTime minDate;
+  final DateTime maxDate;
   final DateTime? initialDate;
   final Locale locale;
 
-  DateTime get getMinDate => minDate ?? DateTime(DateTime.now().year - 1);
-  DateTime get getMaxDate => maxDate ?? DateTime(DateTime.now().year + 1);
   DateTime get getInitialDate => initialDate ?? DateTime.now();
 }
 

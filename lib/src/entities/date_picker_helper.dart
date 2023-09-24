@@ -11,7 +11,7 @@ class _Helper {
           ? hour - 12
           : hour;
 
-  int get _numOfYear => option.getMaxDate.year - option.getMinDate.year + 1;
+  int get _numOfYear => option.maxDate.year - option.minDate.year + 1;
 
   int maxDay(int month, int year) {
     switch (month) {
@@ -47,7 +47,7 @@ class _Helper {
 
   List<int> get years => List.generate(
         _numOfYear,
-        (index) => option.getMinDate.year + index,
+        (index) => option.minDate.year + index,
       );
 
   int itemCount(_DateTimeType type) {
@@ -223,7 +223,7 @@ class _Helper {
       rowIndex: rowIndex,
     );
 
-    return date.isAfter(option.getMaxDate) || date.isBefore(option.getMinDate);
+    return date.isAfter(option.maxDate) || date.isBefore(option.minDate);
   }
 }
 
