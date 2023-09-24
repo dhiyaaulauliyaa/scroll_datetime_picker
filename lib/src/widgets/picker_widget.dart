@@ -82,14 +82,16 @@ class _PickerWidgetState extends State<_PickerWidget> {
           child: IgnorePointer(
             child: SizedBox(
               height: widget.itemExtent,
-              child: ListView.builder(
+              child: ListWheelScrollView.useDelegate(
                 controller: _centerScrollCtl,
                 itemExtent: widget.itemExtent,
-                itemCount: widget.infiniteScroll ? null : widget.itemCount,
-                itemBuilder: (context, index) => Container(
-                  height: widget.itemExtent,
-                  alignment: Alignment.center,
-                  child: widget.activeBuilder.call(index),
+                childDelegate: ListWheelChildBuilderDelegate(
+                  childCount: widget.infiniteScroll ? null : widget.itemCount,
+                  builder: (context, index) => Container(
+                    height: widget.itemExtent,
+                    alignment: Alignment.center,
+                    child: widget.activeBuilder.call(index),
+                  ),
                 ),
               ),
             ),
