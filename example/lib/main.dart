@@ -4,7 +4,7 @@ import 'package:intl/intl.dart';
 import 'package:scroll_datetime_picker/scroll_datetime_picker.dart';
 
 void main() {
-  initializeDateFormatting('id');
+  initializeDateFormatting('en');
 
   runApp(const MyApp());
 }
@@ -29,6 +29,7 @@ class MyHomePage extends StatefulWidget {
 
 class _MyHomePageState extends State<MyHomePage> {
   DateTime date = DateTime.now();
+  DateTime time = DateTime.now();
 
   @override
   Widget build(BuildContext context) {
@@ -39,6 +40,13 @@ class _MyHomePageState extends State<MyHomePage> {
       ),
       body: Column(
         children: [
+          const SizedBox(height: 20),
+
+          /* DATE */
+          Text(
+            'DATE PICKER',
+            style: Theme.of(context).textTheme.headline5,
+          ),
           ScrollDateTimePicker(
             itemExtent: 54,
             infiniteScroll: false,
@@ -47,7 +55,7 @@ class _MyHomePageState extends State<MyHomePage> {
               minDate: DateTime(2000, 6),
               maxDate: DateTime(2024, 6),
               initialDate: date,
-              locale: const Locale('id', 'ID'),
+              locale: const Locale('en', 'ID'),
             ),
             onChange: (datetime) => setState(() {
               date = datetime;
@@ -56,40 +64,65 @@ class _MyHomePageState extends State<MyHomePage> {
               centerDecoration: const BoxDecoration(color: Colors.white),
               activeStyle: TextStyle(
                 fontSize: 20,
-                color: Colors.blue[900],
+                color: Theme.of(context).primaryColor,
                 fontWeight: FontWeight.w700,
               ),
-              inactiveStyle: TextStyle(fontSize: 18, color: Colors.blue[600]),
-              disabledStyle: const TextStyle(fontSize: 18, color: Colors.grey),
+              inactiveStyle: TextStyle(
+                fontSize: 18,
+                color: Theme.of(context).primaryColor.withOpacity(0.7),
+              ),
+              disabledStyle: TextStyle(
+                fontSize: 18,
+                color: Theme.of(context).disabledColor,
+              ),
             ),
           ),
           const SizedBox(height: 20),
-          Text(DateFormat('EEEE dd MMMM yyyy hh:mm a', 'id').format(date)),
+
+          /* TIME */
+          Text(
+            'TIME PICKER',
+            style: Theme.of(context).textTheme.headline5,
+          ),
+          ScrollDateTimePicker(
+            itemExtent: 40,
+            visibleItem: 4,
+            dateOption: DateTimePickerOption(
+              dateFormat: DateFormat('hhmmss a'),
+              minDate: DateTime(2000, 6),
+              maxDate: DateTime(2024, 6),
+              initialDate: time,
+              locale: const Locale('en', 'ID'),
+            ),
+            onChange: (datetime) => setState(() {
+              time = datetime;
+            }),
+            style: DateTimePickerStyle(
+              centerDecoration: const BoxDecoration(color: Colors.white),
+              activeStyle: TextStyle(
+                fontSize: 20,
+                color: Theme.of(context).primaryColor,
+                fontWeight: FontWeight.w700,
+              ),
+              inactiveStyle: TextStyle(
+                fontSize: 18,
+                color: Theme.of(context).primaryColor.withOpacity(0.7),
+              ),
+              disabledStyle: TextStyle(
+                fontSize: 18,
+                color: Theme.of(context).disabledColor,
+              ),
+            ),
+          ),
           const SizedBox(height: 20),
-          ElevatedButton(
-            child: const Text('Show'),
-            onPressed: () async {
-              await showModalBottomSheet<DateTime>(
-                context: context,
-                builder: (context) {
-                  return ScrollDateTimePicker(
-                    itemExtent: 54,
-                    infiniteScroll: false,
-                    dateOption: DateTimePickerOption(
-                      dateFormat: DateFormat.yMMMMd(),
-                      minDate: DateTime(2000),
-                      maxDate: DateTime.now().add(Duration(days: 365)),
-                      initialDate: date,
-                      locale: const Locale('id', 'ID'),
-                    ),
-                    onChange: (datetime) => setState(() {
-                      date = datetime;
-                    }),
-                  );
-                },
-              );
-            },
-          )
+          Text(
+            DateFormat('EEEE dd MMMM yyyy', 'en').format(date),
+            style: Theme.of(context).textTheme.headline5,
+          ),
+          Text(
+            DateFormat('HH:mm:ss', 'en').format(time),
+            style: Theme.of(context).textTheme.headline5,
+          ),
         ],
       ),
     );
