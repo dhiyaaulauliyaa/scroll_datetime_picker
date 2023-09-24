@@ -98,11 +98,7 @@ class _ScrollDateTimePickerState extends State<ScrollDateTimePicker> {
                   decoration: _style.centerDecoration,
                 ),
                 inactiveBuilder: (rowIndex) => Text(
-                  _helper.getText(
-                    type,
-                    pattern,
-                    rowIndex % _helper.itemCount(type),
-                  ),
+                  _helper.getText(type, pattern, rowIndex),
                   style: _helper.isTextDisabled(
                     type,
                     _activeDate.value,
@@ -113,11 +109,7 @@ class _ScrollDateTimePickerState extends State<ScrollDateTimePicker> {
                 ),
                 activeBuilder: (rowIndex) {
                   return Text(
-                    _helper.getText(
-                      type,
-                      pattern,
-                      rowIndex % _helper.itemCount(type),
-                    ),
+                    _helper.getText(type, pattern, rowIndex),
                     style: _helper.isTextDisabled(
                       type,
                       _activeDate.value,
