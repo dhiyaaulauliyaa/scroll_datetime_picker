@@ -1,22 +1,21 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:intl/date_symbol_data_local.dart';
 import 'package:intl/intl.dart';
 
-part 'entities/enums.dart';
 part 'entities/date_time_picker_helper.dart';
 part 'entities/date_time_picker_option.dart';
 part 'entities/date_time_picker_style.dart';
-
+part 'entities/date_time_picker_wheel_option.dart';
+part 'entities/enums.dart';
 part 'widgets/picker_widget.dart';
 part 'widgets/scroll_type_listener.dart';
 
 /// A customizable Scrollable DateTimePicker.
 ///
-/// To set a custom datetime format, use DateFormat available in 
+/// To set a custom datetime format, use DateFormat available in
 /// `[dateOption]` param
-/// 
+///
 /// To set styles for the picker, use `[style]` param
 class ScrollDateTimePicker extends StatefulWidget {
   const ScrollDateTimePicker({
@@ -27,6 +26,7 @@ class ScrollDateTimePicker extends StatefulWidget {
     this.style,
     this.visibleItem = 3,
     this.infiniteScroll = false,
+    this.wheelOption = const DateTimePickerWheelOption(),
   });
 
   /// Height of every item in the picker
@@ -50,12 +50,17 @@ class ScrollDateTimePicker extends StatefulWidget {
   final void Function(DateTime datetime)? onChange;
 
   /// Set datetime configuration
-  /// 
+  ///
   /// Must not be null.
   final DateTimePickerOption dateOption;
-  
+
   /// Set picker styles
   final DateTimePickerStyle? style;
+
+  /// Set custom appearance for the picker wheel
+  ///
+  /// The parameters here are based on flutter's [ListWheelScrollView]
+  final DateTimePickerWheelOption wheelOption;
 
   @override
   State<ScrollDateTimePicker> createState() => _ScrollDateTimePickerState();
@@ -118,6 +123,7 @@ class _ScrollDateTimePickerState extends State<ScrollDateTimePicker> {
                 controller: _controllers[colIndex],
                 onChange: (rowIndex) => _onChange(type, rowIndex),
                 itemCount: _helper.itemCount(type),
+                wheelOption: widget.wheelOption,
                 centerWidget: Container(
                   height: widget.itemExtent,
                   width: double.infinity,

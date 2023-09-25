@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+part of '../scroll_date_time_picker.dart';
 
 /// Set custom appearance for the picker wheel
 /// 
