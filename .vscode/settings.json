@@ -2,6 +2,7 @@
     "conventionalCommits.scopes": [
         "src",
         "main",
-        "pubspec"
+        "pubspec",
+        "example"
     ]
 }
