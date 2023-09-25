@@ -1,7 +1,7 @@
 part of '../scroll_date_time_picker.dart';
 
 /// Set custom appearance for the picker wheel
-/// 
+///
 /// The parameters here are based on flutter's [ListWheelScrollView]
 class DateTimePickerWheelOption {
   const DateTimePickerWheelOption({
@@ -37,13 +37,13 @@ class DateTimePickerWheelOption {
   /// and therefore cannot render children outside the viewport.
   final bool renderChildrenOutsideViewport;
 
-  /// This value will strengthen the wheel effect. 
+  /// This value will strengthen the wheel effect.
   /// - The bigger the value, the appereance will be rounder.
   /// - The lower the value, the appereance will be flatter.
-  /// 
+  ///
   /// Value allowed is > 0 && < 0.01
-  /// 
-  /// Defaults to 0.005 
+  ///
+  /// Defaults to 0.005
   final double perspective;
 
   /// A ratio between the diameter of the cylinder and
@@ -51,7 +51,7 @@ class DateTimePickerWheelOption {
   /// - Value == 1 will make the cylinder has the same diameter as the viewport's size.
   /// - Value < 1 will make items at the edges of the cylinder are entirely contained inside the viewport.
   /// - Value > 1 means angles less than ±[pi] / 2 from the center of the cylinder are visible.
-  /// 
+  ///
   /// Defaults to 1.75
   final double diameterRatio;
 

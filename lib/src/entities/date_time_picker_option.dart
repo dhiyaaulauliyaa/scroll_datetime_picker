@@ -27,7 +27,7 @@ class DateTimePickerOption {
   ///
   /// If a date is before minimum date, date item in the picker
   /// will be disabled and not allowed to be chosen
-  /// 
+  ///
   /// Example:
   ///
   ///       DateTime.now().substract(Duration(days: 200));
@@ -38,7 +38,7 @@ class DateTimePickerOption {
   ///
   /// If a date is after maximum date, date item in the picker
   /// will be disabled and not allowed to be chosen
-  /// 
+  ///
   /// Example:
   ///
   ///       DateTime.now().add(Duration(days: 200));
@@ -46,10 +46,10 @@ class DateTimePickerOption {
   final DateTime maxDate;
 
   /// Initial date to be shown in the picker.
-  /// 
-  /// If null, fallback to: 
-  /// 
-  ///       DateTime.now() 
+  ///
+  /// If null, fallback to:
+  ///
+  ///       DateTime.now()
   final DateTime? initialDate;
 
   Locale get locale => Locale(dateFormat.locale);

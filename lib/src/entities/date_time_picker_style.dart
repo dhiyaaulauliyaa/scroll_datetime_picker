@@ -1,4 +1,5 @@
 part of '../scroll_date_time_picker.dart';
+
 /// Set styles for the DateTime picker widget
 class DateTimePickerStyle {
   DateTimePickerStyle({
@@ -57,12 +58,12 @@ class DateTimePickerStyle {
   final BoxDecoration? inactiveDecoration;
 
   /// Decoration for the center area of the picker
-  /// 
+  ///
   /// Should have a background color to prevent overlap visibility
   /// with inactive values
   ///
   /// Defaults to:
-  /// 
+  ///
   ///        BoxDecoration(
   ///          color: Colors.white,
   ///          border: Border(
