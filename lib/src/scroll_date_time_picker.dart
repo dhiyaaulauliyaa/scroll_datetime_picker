@@ -4,7 +4,7 @@ import 'package:intl/date_symbol_data_local.dart';
 import 'package:intl/intl.dart';
 
 part 'entities/enums.dart';
-part 'entities/date_picker_helper.dart';
+part 'entities/date_time_picker_helper.dart';
 part 'entities/date_time_picker_option.dart';
 part 'entities/date_time_picker_style.dart';
 
