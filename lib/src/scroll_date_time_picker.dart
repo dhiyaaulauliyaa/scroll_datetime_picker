@@ -1,3 +1,4 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:intl/date_symbol_data_local.dart';
@@ -11,24 +12,49 @@ part 'entities/date_time_picker_style.dart';
 part 'widgets/picker_widget.dart';
 part 'widgets/scroll_type_listener.dart';
 
+/// A customizable Scrollable DateTimePicker.
+///
+/// To set a custom datetime format, use DateFormat available in 
+/// `[dateOption]` param
+/// 
+/// To set styles for the picker, use `[style]` param
 class ScrollDateTimePicker extends StatefulWidget {
   const ScrollDateTimePicker({
     super.key,
     required this.itemExtent,
     required this.dateOption,
+    required this.onChange,
     this.style,
-    this.onChange,
     this.visibleItem = 3,
-    this.infiniteScroll = true,
+    this.infiniteScroll = false,
   });
 
+  /// Height of every item in the picker
+  ///
+  /// Must not be null
   final double itemExtent;
+
+  /// Number of item to be shown vertically
+  ///
+  /// Defaults to 3
   final int visibleItem;
+
+  /// Whether to implement infinite scroll or finite scroll.
+  ///
+  /// Defaults to false
   final bool infiniteScroll;
 
+  /// Callback called when the selected date and/or time changes.
+  ///
+  /// Must not be null.
   final void Function(DateTime datetime)? onChange;
 
+  /// Set datetime configuration
+  /// 
+  /// Must not be null.
   final DateTimePickerOption dateOption;
+  
+  /// Set picker styles
   final DateTimePickerStyle? style;
 
   @override
