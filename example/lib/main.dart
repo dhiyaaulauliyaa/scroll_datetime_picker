@@ -51,11 +51,10 @@ class _MyHomePageState extends State<MyHomePage> {
             itemExtent: 54,
             infiniteScroll: false,
             dateOption: DateTimePickerOption(
-              dateFormat: DateFormat('EddMMMy'),
+              dateFormat: DateFormat('EddMMMy', 'fr'),
               minDate: DateTime(2000, 6),
               maxDate: DateTime(2024, 6),
               initialDate: date,
-              locale: const Locale('en', 'ID'),
             ),
             onChange: (datetime) => setState(() {
               date = datetime;
@@ -88,11 +87,10 @@ class _MyHomePageState extends State<MyHomePage> {
             itemExtent: 40,
             visibleItem: 4,
             dateOption: DateTimePickerOption(
-              dateFormat: DateFormat('hhmmss a'),
+              dateFormat: DateFormat('hhmmss a', 'en'),
               minDate: DateTime(2000, 6),
               maxDate: DateTime(2024, 6),
               initialDate: time,
-              locale: const Locale('en', 'ID'),
             ),
             onChange: (datetime) => setState(() {
               time = datetime;

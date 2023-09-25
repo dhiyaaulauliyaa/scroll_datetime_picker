@@ -1,24 +1,62 @@
 part of '../scroll_date_time_picker.dart';
 
+/// Set datetime configuration for the picker
 class DateTimePickerOption {
   const DateTimePickerOption({
     required this.dateFormat,
     required this.minDate,
     required this.maxDate,
     this.initialDate,
-    this.locale = const Locale('en', 'US'),
   });
 
+  /// Format used in the picker.
+  ///
+  /// The picker will automatically parse the format
+  /// and show datetime according to DateFormat's pattern.
+  /// Locale could also pass to this param to set the datetime picker locale.
+  ///
+  /// Example:
+  ///
+  ///       DateFormat.yMMMd();
+  ///       DateFormat('hhmmss');
+  ///       DateFormat.yMMMd('en');
+  ///       DateFormat('hhmmssa', 'fr');
   final DateFormat dateFormat;
-  final DateTime minDate;
-  final DateTime maxDate;
-  final DateTime? initialDate;
-  final Locale locale;
 
+  /// Minimum date allowed to be chosen.
+  ///
+  /// If a date is before minimum date, date item in the picker
+  /// will be disabled and not allowed to be chosen
+  /// 
+  /// Example:
+  ///
+  ///       DateTime.now().substract(Duration(days: 200));
+  ///       DateTime(2020, 6);
+  final DateTime minDate;
+
+  /// Maximum date allowed to be chosen.
+  ///
+  /// If a date is after maximum date, date item in the picker
+  /// will be disabled and not allowed to be chosen
+  /// 
+  /// Example:
+  ///
+  ///       DateTime.now().add(Duration(days: 200));
+  ///       DateTime(2024, 6);
+  final DateTime maxDate;
+
+  /// Initial date to be shown in the picker.
+  /// 
+  /// If null, fallback to: 
+  /// 
+  ///       DateTime.now() 
+  final DateTime? initialDate;
+
+  Locale get locale => Locale(dateFormat.locale);
   DateTime get getInitialDate => initialDate ?? DateTime.now();
 }
 
-extension _DatePickerOptionX on DateTimePickerOption {
+extension _DateTimePickerOptionX on DateTimePickerOption {
   List<String> get patterns {
     if (dateFormat.pattern == null) {
       throw Exception('DateFormat is not valid: $dateFormat');
