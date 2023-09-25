@@ -10,6 +10,7 @@ class _PickerWidget extends StatefulWidget {
     required this.centerWidget,
     required this.activeBuilder,
     required this.inactiveBuilder,
+    required this.wheelOption,
   });
 
   final int itemCount;
@@ -23,11 +24,15 @@ class _PickerWidget extends StatefulWidget {
   final Widget Function(int index) activeBuilder;
   final Widget Function(int index) inactiveBuilder;
 
+  final DateTimePickerWheelOption wheelOption;
+
   @override
   State<_PickerWidget> createState() => _PickerWidgetState();
 }
 
 class _PickerWidgetState extends State<_PickerWidget> {
+  late final DateTimePickerWheelOption _wheelOption;
+
   final _isProgrammaticScroll = ValueNotifier<bool>(false);
   final _centerScrollCtl = ScrollController();
 
@@ -36,6 +41,7 @@ class _PickerWidgetState extends State<_PickerWidget> {
     super.initState();
 
     widget.controller.addListener(_scrollListener);
+    _wheelOption = widget.wheelOption;
   }
 
   @override
@@ -59,7 +65,14 @@ class _PickerWidgetState extends State<_PickerWidget> {
             child: ListWheelScrollView.useDelegate(
               controller: widget.controller,
               itemExtent: widget.itemExtent,
-              perspective: 0.001,
+              physics: _wheelOption.physics,
+              perspective: _wheelOption.perspective,
+              diameterRatio: _wheelOption.diameterRatio,
+              offAxisFraction: _wheelOption.offAxisFraction,
+              squeeze: _wheelOption.squeeze,
+              renderChildrenOutsideViewport:
+                  _wheelOption.renderChildrenOutsideViewport,
+              clipBehavior: _wheelOption.clipBehavior,
               childDelegate: ListWheelChildBuilderDelegate(
                 childCount: widget.infiniteScroll ? null : widget.itemCount,
                 builder: (context, index) {

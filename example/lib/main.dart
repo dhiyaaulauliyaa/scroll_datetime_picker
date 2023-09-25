@@ -49,17 +49,22 @@ class _MyHomePageState extends State<MyHomePage> {
           ),
           ScrollDateTimePicker(
             itemExtent: 54,
-            infiniteScroll: false,
-            dateOption: DateTimePickerOption(
-              dateFormat: DateFormat('EddMMMy'),
-              minDate: DateTime(2000, 6),
-              maxDate: DateTime(2024, 6),
-              initialDate: date,
-              locale: const Locale('en', 'ID'),
-            ),
             onChange: (datetime) => setState(() {
               date = datetime;
             }),
+            dateOption: DateTimePickerOption(
+              dateFormat: DateFormat('EddMMMy', 'fr'),
+              minDate: DateTime(2000, 6),
+              maxDate: DateTime(2024, 6),
+              initialDate: date,
+            ),
+            wheelOption: const DateTimePickerWheelOption(
+              offAxisFraction: 1.25,
+              perspective: 0.01,
+              squeeze: 1.2,
+              clipBehavior: Clip.none,
+              renderChildrenOutsideViewport: true,
+            ),
             style: DateTimePickerStyle(
               centerDecoration: const BoxDecoration(color: Colors.white),
               activeStyle: TextStyle(
@@ -87,12 +92,12 @@ class _MyHomePageState extends State<MyHomePage> {
           ScrollDateTimePicker(
             itemExtent: 40,
             visibleItem: 4,
+            infiniteScroll: true,
             dateOption: DateTimePickerOption(
-              dateFormat: DateFormat('hhmmss a'),
+              dateFormat: DateFormat('hhmmss a', 'en'),
               minDate: DateTime(2000, 6),
               maxDate: DateTime(2024, 6),
               initialDate: time,
-              locale: const Locale('en', 'ID'),
             ),
             onChange: (datetime) => setState(() {
               time = datetime;
