@@ -138,18 +138,16 @@ class _ScrollDateTimePickerState extends State<ScrollDateTimePicker> {
                       ? _style.disabledStyle
                       : _style.inactiveStyle,
                 ),
-                activeBuilder: (rowIndex) {
-                  return Text(
-                    _helper.getText(type, pattern, rowIndex),
-                    style: _helper.isTextDisabled(
-                      type,
-                      _activeDate.value,
-                      rowIndex,
-                    )
-                        ? _style.disabledStyle
-                        : _style.activeStyle,
-                  );
-                },
+                activeBuilder: (rowIndex) => Text(
+                  _helper.getText(type, pattern, rowIndex),
+                  style: _helper.isTextDisabled(
+                    type,
+                    _activeDate.value,
+                    rowIndex,
+                  )
+                      ? _style.disabledStyle
+                      : _style.activeStyle,
+                ),
               ),
             );
           },
