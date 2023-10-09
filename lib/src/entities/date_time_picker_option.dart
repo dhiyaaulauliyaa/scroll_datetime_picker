@@ -72,11 +72,10 @@ extension DateTimePickerOptionX on DateTimePickerOption {
       // Write to buffer if first index
       if (i == 0) {
         buffer.write(currentChar);
-        continue;
       }
 
       // If current char is same, add to buffer
-      if (currentChar == buffer.toString()[0]) {
+      else if (currentChar == buffer.toString()[0]) {
         buffer.write(currentChar);
       }
 
