@@ -1,4 +1,3 @@
-
 enum DateTimeType {
   year('year'),
   month('month'),
@@ -55,6 +54,8 @@ enum DateTimeType {
     if (pattern == 'cc') return day;
     if (pattern == 'ccc') return weekday;
     if (pattern == 'cccc') return weekday;
+    if (pattern == 'LLL') return month;
+    if (pattern == 'LLLL') return month;
 
     throw Exception('DateFormat is not valid: $pattern');
   }
