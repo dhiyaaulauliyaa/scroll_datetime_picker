@@ -1,7 +1,11 @@
-part of '../scroll_date_time_picker.dart';
 
-class _PickerWidget extends StatefulWidget {
-  const _PickerWidget({
+import 'package:flutter/material.dart';
+import 'package:scroll_datetime_picker/scroll_datetime_picker.dart';
+import 'package:scroll_datetime_picker/src/widgets/scroll_type_listener.dart';
+
+class PickerWidget extends StatefulWidget {
+  const PickerWidget({
+    super.key,
     required this.itemCount,
     required this.itemExtent,
     required this.infiniteScroll,
@@ -27,10 +31,10 @@ class _PickerWidget extends StatefulWidget {
   final DateTimePickerWheelOption wheelOption;
 
   @override
-  State<_PickerWidget> createState() => _PickerWidgetState();
+  State<PickerWidget> createState() => _PickerWidgetState();
 }
 
-class _PickerWidgetState extends State<_PickerWidget> {
+class _PickerWidgetState extends State<PickerWidget> {
   late final DateTimePickerWheelOption _wheelOption;
 
   final _isProgrammaticScroll = ValueNotifier<bool>(false);
@@ -57,7 +61,7 @@ class _PickerWidgetState extends State<_PickerWidget> {
     return Stack(
       children: [
         /* Main Scrollable */
-        _ScrollTypeListener(
+        ScrollTypeListener(
           onScroll: (isProgrammaticScroll) =>
               _isProgrammaticScroll.value = isProgrammaticScroll,
           child: NotificationListener<ScrollNotification>(

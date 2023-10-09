@@ -2,14 +2,13 @@ import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:intl/date_symbol_data_local.dart';
 import 'package:intl/intl.dart';
+import 'package:scroll_datetime_picker/src/entities/date_time_picker_helper.dart';
+import 'package:scroll_datetime_picker/src/entities/enums.dart';
+import 'package:scroll_datetime_picker/src/widgets/picker_widget.dart';
 
-part 'entities/date_time_picker_helper.dart';
 part 'entities/date_time_picker_option.dart';
 part 'entities/date_time_picker_style.dart';
 part 'entities/date_time_picker_wheel_option.dart';
-part 'entities/enums.dart';
-part 'widgets/picker_widget.dart';
-part 'widgets/scroll_type_listener.dart';
 
 /// A customizable Scrollable DateTimePicker.
 ///
@@ -72,7 +71,7 @@ class _ScrollDateTimePickerState extends State<ScrollDateTimePicker> {
 
   late final DateTimePickerStyle _style;
   late final DateTimePickerOption _option;
-  late _Helper _helper;
+  late DateTimePickerHelper _helper;
 
   @override
   void initState() {
@@ -82,7 +81,7 @@ class _ScrollDateTimePickerState extends State<ScrollDateTimePicker> {
 
     _option = widget.dateOption;
     _activeDate = ValueNotifier<DateTime>(_option.getInitialDate);
-    _helper = _Helper(_option);
+    _helper = DateTimePickerHelper(_option);
     _style = widget.style ?? DateTimePickerStyle();
     _controllers = List.generate(
       _option.patterns.length,
@@ -114,10 +113,10 @@ class _ScrollDateTimePickerState extends State<ScrollDateTimePicker> {
           _option.patterns.length,
           (colIndex) {
             final pattern = _option.patterns[colIndex];
-            final type = _DateTimeType.fromPattern(pattern);
+            final type = DateTimeType.fromPattern(pattern);
 
             return Expanded(
-              child: _PickerWidget(
+              child: PickerWidget(
                 itemExtent: widget.itemExtent,
                 infiniteScroll: widget.infiniteScroll,
                 controller: _controllers[colIndex],
@@ -166,31 +165,31 @@ class _ScrollDateTimePickerState extends State<ScrollDateTimePicker> {
       late double extent;
 
       switch (_option.dateTimeTypes[i]) {
-        case _DateTimeType.year:
+        case DateTimeType.year:
           extent = (_helper.years.indexOf(activeDate.year)).toDouble();
           break;
-        case _DateTimeType.month:
+        case DateTimeType.month:
           extent = activeDate.month - 1;
           break;
-        case _DateTimeType.day:
+        case DateTimeType.day:
           extent = activeDate.day - 1;
           break;
-        case _DateTimeType.weekday:
+        case DateTimeType.weekday:
           extent = activeDate.weekday - 1;
           break;
-        case _DateTimeType.hour24:
+        case DateTimeType.hour24:
           extent = activeDate.hour - 1;
           break;
-        case _DateTimeType.hour12:
+        case DateTimeType.hour12:
           extent = _helper.convertToHour12(activeDate.hour) - 1;
           break;
-        case _DateTimeType.minute:
+        case DateTimeType.minute:
           extent = activeDate.minute.toDouble();
           break;
-        case _DateTimeType.second:
+        case DateTimeType.second:
           extent = activeDate.second.toDouble();
           break;
-        case _DateTimeType.amPM:
+        case DateTimeType.amPM:
           extent = _helper.isAM(activeDate.hour) ? 0 : 1;
           break;
       }
@@ -203,7 +202,7 @@ class _ScrollDateTimePickerState extends State<ScrollDateTimePicker> {
     }
   }
 
-  void _onChange(_DateTimeType type, int rowIndex) {
+  void _onChange(DateTimeType type, int rowIndex) {
     var newDate = _helper.getDateFromRowIndex(
       type: type,
       rowIndex: rowIndex,
@@ -214,10 +213,10 @@ class _ScrollDateTimePickerState extends State<ScrollDateTimePicker> {
     if (newDate.isBefore(_option.minDate)) newDate = _activeDate.value;
 
     /* Recheck positions */
-    _recheckPosition(_DateTimeType.year, newDate);
-    _recheckPosition(_DateTimeType.month, newDate);
-    _recheckPosition(_DateTimeType.day, newDate);
-    _recheckPosition(_DateTimeType.weekday, newDate);
+    _recheckPosition(DateTimeType.year, newDate);
+    _recheckPosition(DateTimeType.month, newDate);
+    _recheckPosition(DateTimeType.day, newDate);
+    _recheckPosition(DateTimeType.weekday, newDate);
 
     /* Set new date */
     _activeDate.value = newDate;
@@ -226,22 +225,22 @@ class _ScrollDateTimePickerState extends State<ScrollDateTimePicker> {
     return;
   }
 
-  void _recheckPosition(_DateTimeType type, DateTime date) {
+  void _recheckPosition(DateTimeType type, DateTime date) {
     final index = _option.dateTimeTypes.indexOf(type);
     if (index != -1) {
       late int targetPosition;
 
       switch (type) {
-        case _DateTimeType.year:
+        case DateTimeType.year:
           targetPosition = _helper.years.indexOf(date.year) + 1;
           break;
-        case _DateTimeType.month:
+        case DateTimeType.month:
           targetPosition = date.month;
           break;
-        case _DateTimeType.day:
+        case DateTimeType.day:
           targetPosition = date.day;
           break;
-        case _DateTimeType.weekday:
+        case DateTimeType.weekday:
           targetPosition = date.weekday;
           break;
         default:

@@ -56,7 +56,7 @@ class DateTimePickerOption {
   DateTime get getInitialDate => initialDate ?? DateTime.now();
 }
 
-extension _DateTimePickerOptionX on DateTimePickerOption {
+extension DateTimePickerOptionX on DateTimePickerOption {
   List<String> get patterns {
     if (dateFormat.pattern == null) {
       throw Exception('DateFormat is not valid: $dateFormat');
@@ -97,9 +97,9 @@ extension _DateTimePickerOptionX on DateTimePickerOption {
     return result;
   }
 
-  List<_DateTimeType> get dateTimeTypes => patterns
+  List<DateTimeType> get dateTimeTypes => patterns
       .map(
-        _DateTimeType.fromPattern,
+        DateTimeType.fromPattern,
       )
       .toList();
 }
