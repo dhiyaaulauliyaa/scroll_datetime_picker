@@ -1,4 +1,4 @@
-
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:scroll_datetime_picker/scroll_datetime_picker.dart';
 import 'package:scroll_datetime_picker/src/widgets/scroll_type_listener.dart';
@@ -35,7 +35,7 @@ class PickerWidget extends StatefulWidget {
 }
 
 class _PickerWidgetState extends State<PickerWidget> {
-  late final DateTimePickerWheelOption _wheelOption;
+  late DateTimePickerWheelOption _wheelOption;
 
   final _isProgrammaticScroll = ValueNotifier<bool>(false);
   final _centerScrollCtl = ScrollController();
@@ -46,6 +46,17 @@ class _PickerWidgetState extends State<PickerWidget> {
 
     widget.controller.addListener(_scrollListener);
     _wheelOption = widget.wheelOption;
+  }
+
+  @override
+  void didUpdateWidget(covariant PickerWidget oldWidget) {
+    super.didUpdateWidget(oldWidget);
+
+    if (widget.wheelOption != _wheelOption) {
+      setState(() {
+        _wheelOption = widget.wheelOption;
+      });
+    }
   }
 
   @override
@@ -66,26 +77,29 @@ class _PickerWidgetState extends State<PickerWidget> {
               _isProgrammaticScroll.value = isProgrammaticScroll,
           child: NotificationListener<ScrollNotification>(
             onNotification: _onNotification,
-            child: ListWheelScrollView.useDelegate(
-              controller: widget.controller,
-              itemExtent: widget.itemExtent,
-              physics: _wheelOption.physics,
-              perspective: _wheelOption.perspective,
-              diameterRatio: _wheelOption.diameterRatio,
-              offAxisFraction: _wheelOption.offAxisFraction,
-              squeeze: _wheelOption.squeeze,
-              renderChildrenOutsideViewport:
-                  _wheelOption.renderChildrenOutsideViewport,
-              clipBehavior: _wheelOption.clipBehavior,
-              childDelegate: ListWheelChildBuilderDelegate(
-                childCount: widget.infiniteScroll ? null : widget.itemCount,
-                builder: (context, index) {
-                  return Container(
-                    height: widget.itemExtent,
-                    alignment: Alignment.center,
-                    child: widget.inactiveBuilder.call(index),
-                  );
-                },
+            child: ScrollConfiguration(
+              behavior: GeneralScrollBehavior(),
+              child: ListWheelScrollView.useDelegate(
+                controller: widget.controller,
+                itemExtent: widget.itemExtent,
+                physics: _wheelOption.physics,
+                perspective: _wheelOption.perspective,
+                diameterRatio: _wheelOption.diameterRatio,
+                offAxisFraction: _wheelOption.offAxisFraction,
+                squeeze: _wheelOption.squeeze,
+                renderChildrenOutsideViewport:
+                    _wheelOption.renderChildrenOutsideViewport,
+                clipBehavior: _wheelOption.clipBehavior,
+                childDelegate: ListWheelChildBuilderDelegate(
+                  childCount: widget.infiniteScroll ? null : widget.itemCount,
+                  builder: (context, index) {
+                    return Container(
+                      height: widget.itemExtent,
+                      alignment: Alignment.center,
+                      child: widget.inactiveBuilder.call(index),
+                    );
+                  },
+                ),
               ),
             ),
           ),
@@ -160,4 +174,12 @@ class _PickerWidgetState extends State<PickerWidget> {
 
     return true;
   }
+}
+
+class GeneralScrollBehavior extends MaterialScrollBehavior {
+  @override
+  Set<PointerDeviceKind> get dragDevices => {
+        PointerDeviceKind.touch,
+        PointerDeviceKind.mouse,
+      };
 }

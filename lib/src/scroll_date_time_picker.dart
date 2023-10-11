@@ -69,8 +69,8 @@ class _ScrollDateTimePickerState extends State<ScrollDateTimePicker> {
   late final List<ScrollController> _controllers;
   late final ValueNotifier<DateTime> _activeDate;
 
-  late final DateTimePickerStyle _style;
-  late final DateTimePickerOption _option;
+  late DateTimePickerStyle _style;
+  late DateTimePickerOption _option;
   late DateTimePickerHelper _helper;
 
   @override
@@ -91,6 +91,24 @@ class _ScrollDateTimePickerState extends State<ScrollDateTimePicker> {
     SchedulerBinding.instance.addPostFrameCallback((_) {
       _initDate();
     });
+  }
+
+  @override
+  void didUpdateWidget(covariant ScrollDateTimePicker oldWidget) {
+    super.didUpdateWidget(oldWidget);
+
+    if (widget.dateOption != _option) {
+      setState(() {
+        _option = widget.dateOption;
+        _helper = DateTimePickerHelper(_option);
+      });
+    }
+
+    if (widget.style != _style) {
+      setState(() {
+        _style = widget.style ?? _style;
+      });
+    }
   }
 
   @override
