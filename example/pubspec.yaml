@@ -29,6 +29,7 @@ environment:
 # the latest version available on pub.dev. To see which dependencies have newer
 # versions available, run `flutter pub outdated`.
 dependencies:
+  device_preview: ^1.1.0
   flutter:
     sdk: flutter
   intl: ^0.18.0
@@ -39,6 +40,9 @@ dev_dependencies:
   flutter_test:
     sdk: flutter
   very_good_analysis: ^3.1.0
+
+dependency_overrides:
+  intl: ^0.18.0
 
 # For information on the generic Dart part of this file, see the
 # following page: https://dart.dev/tools/pub/pubspec
