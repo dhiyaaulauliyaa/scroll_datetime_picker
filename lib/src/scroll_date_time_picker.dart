@@ -66,8 +66,8 @@ class ScrollDateTimePicker extends StatefulWidget {
 }
 
 class _ScrollDateTimePickerState extends State<ScrollDateTimePicker> {
-  late final List<ScrollController> _controllers;
   late final ValueNotifier<DateTime> _activeDate;
+  late List<ScrollController> _controllers;
 
   late DateTimePickerStyle _style;
   late DateTimePickerOption _option;
@@ -101,6 +101,23 @@ class _ScrollDateTimePickerState extends State<ScrollDateTimePicker> {
       setState(() {
         _option = widget.dateOption;
         _helper = DateTimePickerHelper(_option);
+
+        if (_option.patterns.length != _controllers.length) {
+          final difference = _option.patterns.length - _controllers.length;
+          if (difference.isNegative) {
+            _controllers.removeRange(
+              _controllers.length - difference.abs(),
+              _controllers.length,
+            );
+          } else {
+            _controllers.addAll(
+              List.generate(
+                difference,
+                (_) => ScrollController(),
+              ),
+            );
+          }
+        }
       });
     }
 
