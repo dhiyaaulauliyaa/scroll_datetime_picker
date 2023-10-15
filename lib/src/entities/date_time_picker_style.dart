@@ -15,10 +15,7 @@ class DateTimePickerStyle {
         bottom: BorderSide(color: Colors.grey),
       ),
     ),
-  }) : assert(
-          centerDecoration.color != null,
-          'Center decoration should have background color',
-        );
+  });
 
   /// TextStyle to be used for the widget in the center of the picker.
   /// Item that shown with this style will be set for the new value.
