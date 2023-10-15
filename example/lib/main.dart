@@ -1,4 +1,6 @@
 import 'package:device_preview/device_preview.dart';
+import 'package:example/theme/app_color.dart';
+import 'package:example/theme/app_theme.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/date_symbol_data_local.dart';
 import 'package:intl/intl.dart';
@@ -23,8 +25,7 @@ class MyApp extends StatelessWidget {
       useInheritedMediaQuery: true,
       locale: DevicePreview.locale(context),
       builder: DevicePreview.appBuilder,
-      theme: ThemeData.light(),
-      darkTheme: ThemeData.dark(),
+      theme: AppTheme.themeData,
       home: const MyHomePage(),
     );
   }
@@ -44,21 +45,17 @@ class _MyHomePageState extends State<MyHomePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: Colors.grey[200],
       appBar: AppBar(
-        title: const Text('ScrollDateTimePicker'),
+        title: const Text('Scroll DateTime Picker'),
       ),
       body: SingleChildScrollView(
+        padding: const EdgeInsets.symmetric(horizontal: 8),
         child: Column(
           children: [
             const SizedBox(height: 20),
-      
+
             /* DATE */
-            Text(
-              'DATE PICKER',
-              style: Theme.of(context).textTheme.headline5,
-              textAlign: TextAlign.center,
-            ),
             ScrollDateTimePicker(
               itemExtent: 54,
               onChange: (datetime) => setState(() {
@@ -77,37 +74,33 @@ class _MyHomePageState extends State<MyHomePage> {
                 offAxisFraction: 1.25,
                 perspective: 0.01,
                 squeeze: 1.2,
-                clipBehavior: Clip.none,
-                renderChildrenOutsideViewport: true,
               ),
               style: DateTimePickerStyle(
-                centerDecoration: const BoxDecoration(color: Colors.white),
+                centerDecoration: BoxDecoration(
+                  color: AppColor.secondary,
+                  borderRadius: BorderRadius.circular(30),
+                  border: Border.all(width: 3),
+                ),
                 activeStyle: TextStyle(
-                  fontSize: 20,
+                  fontSize: 24,
+                  letterSpacing: -0.5,
                   color: Theme.of(context).primaryColor,
-                  fontWeight: FontWeight.w700,
                 ),
                 inactiveStyle: TextStyle(
-                  fontSize: 18,
+                  fontSize: 20,
                   color: Theme.of(context).primaryColor.withOpacity(0.7),
                 ),
                 disabledStyle: TextStyle(
-                  fontSize: 18,
+                  fontSize: 20,
                   color: Theme.of(context).disabledColor,
                 ),
               ),
             ),
             const SizedBox(height: 20),
-      
+
             /* TIME */
-            Text(
-              'TIME PICKER',
-              style: Theme.of(context).textTheme.headline5,
-              textAlign: TextAlign.center,
-            ),
             ScrollDateTimePicker(
-              itemExtent: 40,
-              visibleItem: 4,
+              itemExtent: 54,
               infiniteScroll: true,
               dateOption: DateTimePickerOption(
                 dateFormat: DateFormat(
@@ -122,23 +115,31 @@ class _MyHomePageState extends State<MyHomePage> {
                 time = datetime;
               }),
               style: DateTimePickerStyle(
-                centerDecoration: const BoxDecoration(color: Colors.white),
-                activeStyle: TextStyle(
-                  fontSize: 20,
-                  color: Theme.of(context).primaryColor,
-                  fontWeight: FontWeight.w700,
+                centerDecoration: const BoxDecoration(
+                  color: AppColor.primary,
+                  border: Border(
+                    top: BorderSide(width: 3),
+                    bottom: BorderSide(width: 3),
+                  ),
+                ),
+                activeStyle: const TextStyle(
+                  fontSize: 28,
+                  letterSpacing: -0.5,
+                  color: AppColor.secondary,
                 ),
                 inactiveStyle: TextStyle(
-                  fontSize: 18,
+                  fontSize: 20,
                   color: Theme.of(context).primaryColor.withOpacity(0.7),
                 ),
                 disabledStyle: TextStyle(
-                  fontSize: 18,
+                  fontSize: 20,
                   color: Theme.of(context).disabledColor,
                 ),
               ),
             ),
             const SizedBox(height: 20),
+
+            /* Active Date */
             Text(
               DateFormat(
                 'EEEE dd MMMM yyyy',
@@ -152,9 +153,10 @@ class _MyHomePageState extends State<MyHomePage> {
                 'HH:mm:ss',
                 DevicePreview.locale(context)?.languageCode,
               ).format(time),
-              style: Theme.of(context).textTheme.headline5,
+              style: Theme.of(context).textTheme.headline3,
               textAlign: TextAlign.center,
             ),
+            const SizedBox(height: 20),
           ],
         ),
       ),
