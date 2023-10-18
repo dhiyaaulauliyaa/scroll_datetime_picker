@@ -1,7 +1,9 @@
-part of '../scroll_date_time_picker.dart';
+import 'package:intl/intl.dart';
+import 'package:scroll_datetime_picker/scroll_datetime_picker.dart';
+import 'package:scroll_datetime_picker/src/entities/enums.dart';
 
-class _Helper {
-  const _Helper(this.option);
+class DateTimePickerHelper {
+  const DateTimePickerHelper(this.option);
   final DateTimePickerOption option;
 
   bool isAM(int hour) => hour < 12;
@@ -11,7 +13,7 @@ class _Helper {
           ? hour - 12
           : hour;
 
-  int get _numOfYear => option.maxDate.year - option.minDate.year + 1;
+  int get numOfYear => option.maxDate.year - option.minDate.year + 1;
 
   int maxDay(int month, int year) {
     switch (month) {
@@ -46,78 +48,78 @@ class _Helper {
   }
 
   List<int> get years => List.generate(
-        _numOfYear,
+        numOfYear,
         (index) => option.minDate.year + index,
       );
 
-  int itemCount(_DateTimeType type) {
+  int itemCount(DateTimeType type) {
     switch (type) {
-      case _DateTimeType.year:
-        return _numOfYear;
-      case _DateTimeType.month:
+      case DateTimeType.year:
+        return numOfYear;
+      case DateTimeType.month:
         return 12;
-      case _DateTimeType.day:
+      case DateTimeType.day:
         return 31;
-      case _DateTimeType.weekday:
+      case DateTimeType.weekday:
         return 7;
-      case _DateTimeType.hour24:
+      case DateTimeType.hour24:
         return 24;
-      case _DateTimeType.hour12:
+      case DateTimeType.hour12:
         return 12;
-      case _DateTimeType.minute:
+      case DateTimeType.minute:
         return 60;
-      case _DateTimeType.second:
+      case DateTimeType.second:
         return 60;
-      case _DateTimeType.amPM:
+      case DateTimeType.amPM:
         return 2;
     }
   }
 
-  String getText(_DateTimeType type, String pattern, int rowIndex) {
+  String getText(DateTimeType type, String pattern, int rowIndex) {
     final normalizedRowIndex = rowIndex % itemCount(type);
 
     switch (type) {
-      case _DateTimeType.year:
+      case DateTimeType.year:
         return DateFormat(
           pattern,
           option.locale.languageCode,
         ).format(DateTime(years[normalizedRowIndex]));
-      case _DateTimeType.month:
+      case DateTimeType.month:
         return DateFormat(
           pattern,
           option.locale.languageCode,
         ).format(DateTime(2000, normalizedRowIndex + 1));
-      case _DateTimeType.day:
+      case DateTimeType.day:
         return DateFormat(
           pattern,
           option.locale.languageCode,
         ).format(DateTime(2000, 1, normalizedRowIndex + 1));
-      case _DateTimeType.weekday:
+      case DateTimeType.weekday:
         return DateFormat(
           pattern,
           option.locale.languageCode,
         ).format(DateTime(2000, 1, normalizedRowIndex + 3));
-      case _DateTimeType.hour24:
+      case DateTimeType.hour24:
         return DateFormat(
           pattern,
           option.locale.languageCode,
         ).format(DateTime(2000, 1, 1, normalizedRowIndex));
-      case _DateTimeType.hour12:
+      case DateTimeType.hour12:
         return DateFormat(
           pattern,
           option.locale.languageCode,
         ).format(DateTime(2000, 1, 1, normalizedRowIndex + 1));
-      case _DateTimeType.minute:
+      case DateTimeType.minute:
         return DateFormat(
           pattern,
           option.locale.languageCode,
         ).format(DateTime(2000, 1, 1, 0, normalizedRowIndex));
-      case _DateTimeType.second:
+      case DateTimeType.second:
         return DateFormat(
           pattern,
           option.locale.languageCode,
         ).format(DateTime(2000, 1, 1, 0, 0, normalizedRowIndex));
-      case _DateTimeType.amPM:
+      case DateTimeType.amPM:
         return DateFormat(
           pattern,
           option.locale.languageCode,
@@ -126,7 +128,7 @@ class _Helper {
   }
 
   DateTime getDateFromRowIndex({
-    required _DateTimeType type,
+    required DateTimeType type,
     required DateTime activeDate,
     required int rowIndex,
   }) {
@@ -134,7 +136,7 @@ class _Helper {
     final normalizedRowIndex = rowIndex % itemCount(type);
 
     switch (type) {
-      case _DateTimeType.year:
+      case DateTimeType.year:
         final newYear = years[normalizedRowIndex];
 
         final newMaxDay = maxDay(activeDate.month, newYear);
@@ -143,7 +145,7 @@ class _Helper {
 
         newDate = activeDate.copyWith(year: newYear, day: newDay);
         break;
-      case _DateTimeType.month:
+      case DateTimeType.month:
         final newMonth = normalizedRowIndex + 1;
 
         final newMaxDay = maxDay(newMonth, activeDate.year);
@@ -152,7 +154,7 @@ class _Helper {
 
         newDate = activeDate.copyWith(month: newMonth, day: newDay);
         break;
-      case _DateTimeType.day:
+      case DateTimeType.day:
         var newDay = normalizedRowIndex + 1;
 
         final newMaxDay = maxDay(activeDate.month, activeDate.year);
@@ -160,7 +162,7 @@ class _Helper {
 
         newDate = activeDate.copyWith(day: newDay);
         break;
-      case _DateTimeType.weekday:
+      case DateTimeType.weekday:
         final oldDay = activeDate.weekday;
         final newDay = normalizedRowIndex + 1;
         final difference = newDay - oldDay;
@@ -168,10 +170,10 @@ class _Helper {
             ? activeDate.add(Duration(days: difference.abs()))
             : activeDate.subtract(Duration(days: difference.abs()));
         break;
-      case _DateTimeType.hour24:
+      case DateTimeType.hour24:
         newDate = activeDate.copyWith(hour: normalizedRowIndex);
         break;
-      case _DateTimeType.hour12:
+      case DateTimeType.hour12:
         final hour = activeDate.hour;
         final newIsAM = isAM(hour);
 
@@ -181,13 +183,13 @@ class _Helper {
 
         newDate = activeDate.copyWith(hour: newHour);
         break;
-      case _DateTimeType.minute:
+      case DateTimeType.minute:
         newDate = activeDate.copyWith(minute: normalizedRowIndex);
         break;
-      case _DateTimeType.second:
+      case DateTimeType.second:
         newDate = activeDate.copyWith(second: normalizedRowIndex);
         break;
-      case _DateTimeType.amPM:
+      case DateTimeType.amPM:
         final hour = activeDate.hour;
         final newIsAM = isAM(hour);
         var newHour = hour;
@@ -205,9 +207,9 @@ class _Helper {
     return newDate;
   }
 
-  bool isTextDisabled(_DateTimeType type, DateTime activeDate, int rowIndex) {
+  bool isTextDisabled(DateTimeType type, DateTime activeDate, int rowIndex) {
     // Check if day is valid
-    if (type == _DateTimeType.day) {
+    if (type == DateTimeType.day) {
       final newMaxDay = maxDay(
         activeDate.month,
         activeDate.year,
@@ -244,7 +246,7 @@ extension LeapYearX on int {
   }
 }
 
-extension _DateTimeX on DateTime {
+extension DateTimeX on DateTime {
   DateTime copyWith({
     int? year,
     int? month,

@@ -1,7 +1,8 @@
-part of '../scroll_date_time_picker.dart';
+import 'package:flutter/material.dart';
 
-class _ScrollTypeListener extends StatelessWidget {
-  _ScrollTypeListener({
+class ScrollTypeListener extends StatelessWidget {
+  ScrollTypeListener({
+    super.key,
     required this.child,
     required this.onScroll,
   });

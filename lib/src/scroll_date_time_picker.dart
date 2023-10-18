@@ -2,14 +2,13 @@ import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:intl/date_symbol_data_local.dart';
 import 'package:intl/intl.dart';
+import 'package:scroll_datetime_picker/src/entities/date_time_picker_helper.dart';
+import 'package:scroll_datetime_picker/src/entities/enums.dart';
+import 'package:scroll_datetime_picker/src/widgets/picker_widget.dart';
 
-part 'entities/date_time_picker_helper.dart';
 part 'entities/date_time_picker_option.dart';
 part 'entities/date_time_picker_style.dart';
 part 'entities/date_time_picker_wheel_option.dart';
-part 'entities/enums.dart';
-part 'widgets/picker_widget.dart';
-part 'widgets/scroll_type_listener.dart';
 
 /// A customizable Scrollable DateTimePicker.
 ///
@@ -67,22 +66,25 @@ class ScrollDateTimePicker extends StatefulWidget {
 }
 
 class _ScrollDateTimePickerState extends State<ScrollDateTimePicker> {
-  late final List<ScrollController> _controllers;
   late final ValueNotifier<DateTime> _activeDate;
+  late List<ScrollController> _controllers;
 
-  late final DateTimePickerStyle _style;
-  late final DateTimePickerOption _option;
-  late _Helper _helper;
+  late DateTimePickerStyle _style;
+  late DateTimePickerOption _option;
+  late DateTimePickerHelper _helper;
+
+  late final ValueNotifier<bool> isRecheckingPosition;
 
   @override
   void initState() {
     super.initState();
 
     initializeDateFormatting(widget.dateOption.locale.languageCode);
+    isRecheckingPosition = ValueNotifier(false);
 
     _option = widget.dateOption;
     _activeDate = ValueNotifier<DateTime>(_option.getInitialDate);
-    _helper = _Helper(_option);
+    _helper = DateTimePickerHelper(_option);
     _style = widget.style ?? DateTimePickerStyle();
     _controllers = List.generate(
       _option.patterns.length,
@@ -95,7 +97,43 @@ class _ScrollDateTimePickerState extends State<ScrollDateTimePicker> {
   }
 
   @override
+  void didUpdateWidget(covariant ScrollDateTimePicker oldWidget) {
+    super.didUpdateWidget(oldWidget);
+
+    if (widget.dateOption != _option) {
+      setState(() {
+        _option = widget.dateOption;
+        _helper = DateTimePickerHelper(_option);
+
+        if (_option.patterns.length != _controllers.length) {
+          final difference = _option.patterns.length - _controllers.length;
+          if (difference.isNegative) {
+            _controllers.removeRange(
+              _controllers.length - difference.abs(),
+              _controllers.length,
+            );
+          } else {
+            _controllers.addAll(
+              List.generate(
+                difference,
+                (_) => ScrollController(),
+              ),
+            );
+          }
+        }
+      });
+    }
+
+    if (widget.style != _style) {
+      setState(() {
+        _style = widget.style ?? _style;
+      });
+    }
+  }
+
+  @override
   void dispose() {
+    isRecheckingPosition.dispose();
     _activeDate.dispose();
     for (final ctrl in _controllers) {
       ctrl.dispose();
@@ -109,52 +147,74 @@ class _ScrollDateTimePickerState extends State<ScrollDateTimePicker> {
     return SizedBox(
       width: double.infinity,
       height: widget.itemExtent * widget.visibleItem,
-      child: Row(
-        children: List.generate(
-          _option.patterns.length,
-          (colIndex) {
-            final pattern = _option.patterns[colIndex];
-            final type = _DateTimeType.fromPattern(pattern);
+      child: Stack(
+        alignment: Alignment.center,
+        children: [
+          /* Center Decoration */
+          Container(
+            height: widget.itemExtent,
+            width: double.infinity,
+            decoration: _style.centerDecoration,
+          ),
 
-            return Expanded(
-              child: _PickerWidget(
-                itemExtent: widget.itemExtent,
-                infiniteScroll: widget.infiniteScroll,
-                controller: _controllers[colIndex],
-                onChange: (rowIndex) => _onChange(type, rowIndex),
-                itemCount: _helper.itemCount(type),
-                wheelOption: widget.wheelOption,
-                centerWidget: Container(
-                  height: widget.itemExtent,
-                  width: double.infinity,
-                  decoration: _style.centerDecoration,
-                ),
-                inactiveBuilder: (rowIndex) => Text(
-                  _helper.getText(type, pattern, rowIndex),
-                  style: _helper.isTextDisabled(
-                    type,
-                    _activeDate.value,
-                    rowIndex,
-                  )
-                      ? _style.disabledStyle
-                      : _style.inactiveStyle,
-                ),
-                activeBuilder: (rowIndex) {
-                  return Text(
-                    _helper.getText(type, pattern, rowIndex),
-                    style: _helper.isTextDisabled(
-                      type,
-                      _activeDate.value,
-                      rowIndex,
-                    )
-                        ? _style.disabledStyle
-                        : _style.activeStyle,
+          /* Picker Widget */
+          SizedBox(
+            width: double.infinity,
+            height: widget.itemExtent * widget.visibleItem,
+            child: Row(
+              children: List.generate(
+                _option.patterns.length,
+                (colIndex) {
+                  final pattern = _option.patterns[colIndex];
+                  final type = DateTimeType.fromPattern(pattern);
+
+                  return Expanded(
+                    child: PickerWidget(
+                      itemExtent: widget.itemExtent,
+                      infiniteScroll: widget.infiniteScroll,
+                      controller: _controllers[colIndex],
+                      onChange: (rowIndex) => _onChange(type, rowIndex),
+                      itemCount: _helper.itemCount(type),
+                      wheelOption: widget.wheelOption,
+                      inactiveBuilder: (rowIndex) => Container(
+                        width: double.infinity,
+                        height: widget.itemExtent,
+                        alignment: Alignment.center,
+                        decoration: _style.inactiveDecoration,
+                        child: Text(
+                          _helper.getText(type, pattern, rowIndex),
+                          style: _helper.isTextDisabled(
+                            type,
+                            _activeDate.value,
+                            rowIndex,
+                          )
+                              ? _style.disabledStyle
+                              : _style.inactiveStyle,
+                        ),
+                      ),
+                      activeBuilder: (rowIndex) => Container(
+                        width: double.infinity,
+                        height: widget.itemExtent,
+                        alignment: Alignment.center,
+                        decoration: _style.activeDecoration,
+                        child: Text(
+                          _helper.getText(type, pattern, rowIndex),
+                          style: _helper.isTextDisabled(
+                            type,
+                            _activeDate.value,
+                            rowIndex,
+                          )
+                              ? _style.disabledStyle
+                              : _style.activeStyle,
+                        ),
+                      ),
+                    ),
                   );
                 },
               ),
-            );
-          },
-        ),
+            ),
+          ),
+        ],
       ),
     );
   }
@@ -166,44 +226,46 @@ class _ScrollDateTimePickerState extends State<ScrollDateTimePicker> {
       late double extent;
 
       switch (_option.dateTimeTypes[i]) {
-        case _DateTimeType.year:
-          extent = (_helper.years.indexOf(activeDate.year)).toDouble();
+        case DateTimeType.year:
+          extent = _helper.years.indexOf(activeDate.year).toDouble();
           break;
-        case _DateTimeType.month:
+        case DateTimeType.month:
           extent = activeDate.month - 1;
           break;
-        case _DateTimeType.day:
+        case DateTimeType.day:
           extent = activeDate.day - 1;
           break;
-        case _DateTimeType.weekday:
+        case DateTimeType.weekday:
           extent = activeDate.weekday - 1;
           break;
-        case _DateTimeType.hour24:
+        case DateTimeType.hour24:
           extent = activeDate.hour - 1;
           break;
-        case _DateTimeType.hour12:
+        case DateTimeType.hour12:
           extent = _helper.convertToHour12(activeDate.hour) - 1;
           break;
-        case _DateTimeType.minute:
+        case DateTimeType.minute:
           extent = activeDate.minute.toDouble();
           break;
-        case _DateTimeType.second:
+        case DateTimeType.second:
           extent = activeDate.second.toDouble();
           break;
-        case _DateTimeType.amPM:
+        case DateTimeType.amPM:
           extent = _helper.isAM(activeDate.hour) ? 0 : 1;
           break;
       }
 
-      _controllers[i].animateTo(
-        widget.itemExtent * extent,
-        duration: const Duration(milliseconds: 100),
-        curve: Curves.easeOut,
-      );
+      if (_controllers[i].hasClients) {
+        _controllers[i].animateTo(
+          widget.itemExtent * extent,
+          duration: const Duration(milliseconds: 100),
+          curve: Curves.easeOut,
+        );
+      }
     }
   }
 
-  void _onChange(_DateTimeType type, int rowIndex) {
+  Future<void> _onChange(DateTimeType type, int rowIndex) async {
     var newDate = _helper.getDateFromRowIndex(
       type: type,
       rowIndex: rowIndex,
@@ -213,41 +275,47 @@ class _ScrollDateTimePickerState extends State<ScrollDateTimePicker> {
     if (newDate.isAfter(_option.maxDate)) newDate = _activeDate.value;
     if (newDate.isBefore(_option.minDate)) newDate = _activeDate.value;
 
-    /* Recheck positions */
-    _recheckPosition(_DateTimeType.year, newDate);
-    _recheckPosition(_DateTimeType.month, newDate);
-    _recheckPosition(_DateTimeType.day, newDate);
-    _recheckPosition(_DateTimeType.weekday, newDate);
-
     /* Set new date */
     _activeDate.value = newDate;
     widget.onChange?.call(newDate);
 
+    /* Recheck positions */
+    if (!isRecheckingPosition.value) {
+      isRecheckingPosition.value = true;
+      await _recheckPosition(DateTimeType.year, newDate);
+      await _recheckPosition(DateTimeType.month, newDate);
+      await _recheckPosition(DateTimeType.day, newDate);
+      await _recheckPosition(DateTimeType.weekday, newDate);
+      isRecheckingPosition.value = false;
+    }
+
     return;
   }
 
-  void _recheckPosition(_DateTimeType type, DateTime date) {
+  Future<void> _recheckPosition(DateTimeType type, DateTime date) async {
     final index = _option.dateTimeTypes.indexOf(type);
     if (index != -1) {
       late int targetPosition;
 
       switch (type) {
-        case _DateTimeType.year:
+        case DateTimeType.year:
           targetPosition = _helper.years.indexOf(date.year) + 1;
           break;
-        case _DateTimeType.month:
+        case DateTimeType.month:
           targetPosition = date.month;
           break;
-        case _DateTimeType.day:
+        case DateTimeType.day:
           targetPosition = date.day;
           break;
-        case _DateTimeType.weekday:
+        case DateTimeType.weekday:
           targetPosition = date.weekday;
           break;
         default:
           break;
       }
-      _fixPosition(
+
+      /* Check if other scroll controller is still scrolling */
+      await _fixPosition(
         controller: _controllers[index],
         itemCount: _helper.itemCount(type),
         targetPosition: targetPosition,
@@ -255,11 +323,11 @@ class _ScrollDateTimePickerState extends State<ScrollDateTimePicker> {
     }
   }
 
-  void _fixPosition({
+  Future<void> _fixPosition({
     required ScrollController controller,
     required int itemCount,
     required int targetPosition,
-  }) {
+  }) async {
     if (controller.hasClients) {
       final scrollPosition =
           (controller.offset / widget.itemExtent).floor() % itemCount + 1;
@@ -269,15 +337,18 @@ class _ScrollDateTimePickerState extends State<ScrollDateTimePicker> {
         final endOffset = controller.offset - (difference * widget.itemExtent);
 
         if (!controller.position.isScrollingNotifier.value) {
-          Future.delayed(Duration.zero, () {
-            controller.animateTo(
+          await Future.delayed(
+            const Duration(milliseconds: 100),
+            () => controller.animateTo(
               endOffset,
               duration: const Duration(milliseconds: 500),
               curve: Curves.bounceOut,
-            );
-          });
+            ),
+          );
         }
       }
     }
+
+    return;
   }
 }

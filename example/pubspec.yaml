@@ -29,8 +29,13 @@ environment:
 # the latest version available on pub.dev. To see which dependencies have newer
 # versions available, run `flutter pub outdated`.
 dependencies:
+  color_picker_field: ^1.1.2
+  device_preview: ^1.1.0
+  flex_color_picker: ^3.0.2
   flutter:
     sdk: flutter
+  flutter_font_picker: ^1.2.0
+  google_fonts: ^4.0.4
   intl: ^0.18.0
   scroll_datetime_picker:
     path: ../
@@ -39,6 +44,9 @@ dev_dependencies:
   flutter_test:
     sdk: flutter
   very_good_analysis: ^3.1.0
+
+dependency_overrides:
+  intl: ^0.18.0
 
 # For information on the generic Dart part of this file, see the
 # following page: https://dart.dev/tools/pub/pubspec

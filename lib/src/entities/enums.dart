@@ -1,6 +1,4 @@
-part of '../scroll_date_time_picker.dart';
-
-enum _DateTimeType {
+enum DateTimeType {
   year('year'),
   month('month'),
   day('day'),
@@ -11,7 +9,7 @@ enum _DateTimeType {
   second('second'),
   amPM('amPM');
 
-  const _DateTimeType(this.name);
+  const DateTimeType(this.name);
   final String name;
 
   String get basePattern {
@@ -37,7 +35,7 @@ enum _DateTimeType {
     }
   }
 
-  static _DateTimeType fromPattern(String pattern) {
+  static DateTimeType fromPattern(String pattern) {
     final firstChar = pattern[0];
 
     if (year.basePattern == firstChar) return year;
@@ -56,6 +54,8 @@ enum _DateTimeType {
     if (pattern == 'cc') return day;
     if (pattern == 'ccc') return weekday;
     if (pattern == 'cccc') return weekday;
+    if (pattern == 'LLL') return month;
+    if (pattern == 'LLLL') return month;
 
     throw Exception('DateFormat is not valid: $pattern');
   }

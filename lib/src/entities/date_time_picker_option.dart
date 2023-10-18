@@ -27,7 +27,7 @@ class DateTimePickerOption {
   ///
   /// If a date is before minimum date, date item in the picker
   /// will be disabled and not allowed to be chosen
-  /// 
+  ///
   /// Example:
   ///
   ///       DateTime.now().substract(Duration(days: 200));
@@ -38,7 +38,7 @@ class DateTimePickerOption {
   ///
   /// If a date is after maximum date, date item in the picker
   /// will be disabled and not allowed to be chosen
-  /// 
+  ///
   /// Example:
   ///
   ///       DateTime.now().add(Duration(days: 200));
@@ -46,17 +46,17 @@ class DateTimePickerOption {
   final DateTime maxDate;
 
   /// Initial date to be shown in the picker.
-  /// 
-  /// If null, fallback to: 
-  /// 
-  ///       DateTime.now() 
+  ///
+  /// If null, fallback to:
+  ///
+  ///       DateTime.now()
   final DateTime? initialDate;
 
   Locale get locale => Locale(dateFormat.locale);
   DateTime get getInitialDate => initialDate ?? DateTime.now();
 }
 
-extension _DateTimePickerOptionX on DateTimePickerOption {
+extension DateTimePickerOptionX on DateTimePickerOption {
   List<String> get patterns {
     if (dateFormat.pattern == null) {
       throw Exception('DateFormat is not valid: $dateFormat');
@@ -72,11 +72,10 @@ extension _DateTimePickerOptionX on DateTimePickerOption {
       // Write to buffer if first index
       if (i == 0) {
         buffer.write(currentChar);
-        continue;
       }
 
       // If current char is same, add to buffer
-      if (currentChar == buffer.toString()[0]) {
+      else if (currentChar == buffer.toString()[0]) {
         buffer.write(currentChar);
       }
 
@@ -97,9 +96,9 @@ extension _DateTimePickerOptionX on DateTimePickerOption {
     return result;
   }
 
-  List<_DateTimeType> get dateTimeTypes => patterns
+  List<DateTimeType> get dateTimeTypes => patterns
       .map(
-        _DateTimeType.fromPattern,
+        DateTimeType.fromPattern,
       )
       .toList();
 }
