@@ -3,6 +3,7 @@ import 'package:example/customizer/tabs/date_option_tab.dart';
 import 'package:example/customizer/tabs/style_option_tab.dart';
 import 'package:example/customizer/tabs/wheel_option_tab.dart';
 import 'package:example/theme/app_color.dart';
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/intl.dart';
@@ -92,96 +93,104 @@ class _CustomizerScreenState extends State<CustomizerScreen>
         title: const Text('Customizer'),
       ),
       backgroundColor: Colors.grey[900]?.withOpacity(0.9),
-      body: Column(
-        children: [
-          /* DateTimePicker */
-          Container(
-            margin: const EdgeInsets.all(16),
-            padding: const EdgeInsets.all(16),
-            decoration: BoxDecoration(
-              color: Colors.white,
-              border: Border.all(width: 3),
-              borderRadius: BorderRadius.circular(12),
-            ),
-            child: ScrollDateTimePicker(
-              itemExtent: itemExtent,
-              visibleItem: visibleItem,
-              infiniteScroll: infiniteScroll,
-              dateOption: dateOption,
-              wheelOption: wheelOption,
-              style: style,
-              onChange: (datetime) => setState(() {
-                date = datetime;
-              }),
-            ),
-          ),
-
-          /* Tab Bar */
-          DecoratedBox(
-            decoration: BoxDecoration(
-              color: Colors.deepPurple[800],
-              border: Border.all(width: 3),
-              borderRadius: BorderRadius.circular(12),
-            ),
-            child: ClipRRect(
-              borderRadius: BorderRadius.circular(12),
-              child: TabBar(
-                controller: _tabController,
-                isScrollable: true,
-                indicatorColor: const Color(0xFFC8FC2E),
-                labelColor: Colors.white,
-                labelPadding: const EdgeInsets.all(16),
-                labelStyle: GoogleFonts.bebasNeue(
-                  fontSize: 20,
-                  fontStyle: FontStyle.italic,
-                ),
-                tabs: [
-                  'Date Option.',
-                  'Style Option.',
-                  'Wheel Option.',
-                  'Appearance Option.',
-                ].map(Text.new).toList(),
+      body: ScrollConfiguration(
+        behavior: ScrollConfiguration.of(context).copyWith(
+          dragDevices: {
+            PointerDeviceKind.touch,
+            PointerDeviceKind.mouse,
+          },
+        ),
+        child: Column(
+          children: [
+            /* DateTimePicker */
+            Container(
+              margin: const EdgeInsets.all(16),
+              padding: const EdgeInsets.all(16),
+              decoration: BoxDecoration(
+                color: Colors.white,
+                border: Border.all(width: 3),
+                borderRadius: BorderRadius.circular(12),
+              ),
+              child: ScrollDateTimePicker(
+                itemExtent: itemExtent,
+                visibleItem: visibleItem,
+                infiniteScroll: infiniteScroll,
+                dateOption: dateOption,
+                wheelOption: wheelOption,
+                style: style,
+                onChange: (datetime) => setState(() {
+                  date = datetime;
+                }),
               ),
             ),
-          ),
 
-          /* Customizer Tabs */
-          Expanded(
-            child: TabBarView(
-              controller: _tabController,
-              children: [
-                DateOptionTab(
-                  initialValue: dateOption,
-                  onChanged: (value) => setState(
-                    () => dateOption = value,
+            /* Tab Bar */
+            DecoratedBox(
+              decoration: BoxDecoration(
+                color: Colors.deepPurple[800],
+                border: Border.all(width: 3),
+                borderRadius: BorderRadius.circular(12),
+              ),
+              child: ClipRRect(
+                borderRadius: BorderRadius.circular(12),
+                child: TabBar(
+                  controller: _tabController,
+                  isScrollable: true,
+                  indicatorColor: const Color(0xFFC8FC2E),
+                  labelColor: Colors.white,
+                  labelPadding: const EdgeInsets.all(16),
+                  labelStyle: GoogleFonts.bebasNeue(
+                    fontSize: 20,
+                    fontStyle: FontStyle.italic,
                   ),
+                  tabs: [
+                    'Date Option.',
+                    'Style Option.',
+                    'Wheel Option.',
+                    'Appearance Option.',
+                  ].map(Text.new).toList(),
                 ),
-                StyleOptionTab(
-                  initialValue: style,
-                  onChanged: (value) => setState(
-                    () => style = value,
-                  ),
-                ),
-                WheelOptionTab(
-                  initialValue: wheelOption,
-                  onChanged: (option) => setState(() {
-                    wheelOption = option;
-                  }),
-                ),
-                AppearanceOptionTab(
-                  infiniteScroll: infiniteScroll,
-                  visibleItem: visibleItem,
-                  onInfiniteScrollChanged: (val) => setState(
-                    () => infiniteScroll = val,
-                  ),
-                  onVisibleItemChanged: (val) => setState(
-                    () => visibleItem = val.floor(),
-                  ),
-                )
-              ],
+              ),
             ),
-          )
-        ],
+
+            /* Customizer Tabs */
+            Expanded(
+              child: TabBarView(
+                controller: _tabController,
+                children: [
+                  DateOptionTab(
+                    initialValue: dateOption,
+                    onChanged: (value) => setState(
+                      () => dateOption = value,
+                    ),
+                  ),
+                  StyleOptionTab(
+                    initialValue: style,
+                    onChanged: (value) => setState(
+                      () => style = value,
+                    ),
+                  ),
+                  WheelOptionTab(
+                    initialValue: wheelOption,
+                    onChanged: (option) => setState(() {
+                      wheelOption = option;
+                    }),
+                  ),
+                  AppearanceOptionTab(
+                    infiniteScroll: infiniteScroll,
+                    visibleItem: visibleItem,
+                    onInfiniteScrollChanged: (val) => setState(
+                      () => infiniteScroll = val,
+                    ),
+                    onVisibleItemChanged: (val) => setState(
+                      () => visibleItem = val.floor(),
+                    ),
+                  )
+                ],
+              ),
+            )
+          ],
+        ),
       ),
     );
   }
