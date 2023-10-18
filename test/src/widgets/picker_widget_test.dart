@@ -19,7 +19,6 @@ void main() {
                 infiniteScroll: false,
                 onChange: (_) {},
                 controller: scrollController,
-                centerWidget: const SizedBox(),
                 activeBuilder: (_) => const SizedBox(),
                 inactiveBuilder: (_) => const SizedBox(),
                 wheelOption: const DateTimePickerWheelOption(),

@@ -143,50 +143,74 @@ class _ScrollDateTimePickerState extends State<ScrollDateTimePicker> {
     return SizedBox(
       width: double.infinity,
       height: widget.itemExtent * widget.visibleItem,
-      child: Row(
-        children: List.generate(
-          _option.patterns.length,
-          (colIndex) {
-            final pattern = _option.patterns[colIndex];
-            final type = DateTimeType.fromPattern(pattern);
+      child: Stack(
+        alignment: Alignment.center,
+        children: [
+          /* Center Decoration */
+          Container(
+            height: widget.itemExtent,
+            width: double.infinity,
+            decoration: _style.centerDecoration,
+          ),
 
-            return Expanded(
-              child: PickerWidget(
-                itemExtent: widget.itemExtent,
-                infiniteScroll: widget.infiniteScroll,
-                controller: _controllers[colIndex],
-                onChange: (rowIndex) => _onChange(type, rowIndex),
-                itemCount: _helper.itemCount(type),
-                wheelOption: widget.wheelOption,
-                centerWidget: Container(
-                  height: widget.itemExtent,
-                  width: double.infinity,
-                  decoration: _style.centerDecoration,
-                ),
-                inactiveBuilder: (rowIndex) => Text(
-                  _helper.getText(type, pattern, rowIndex),
-                  style: _helper.isTextDisabled(
-                    type,
-                    _activeDate.value,
-                    rowIndex,
-                  )
-                      ? _style.disabledStyle
-                      : _style.inactiveStyle,
-                ),
-                activeBuilder: (rowIndex) => Text(
-                  _helper.getText(type, pattern, rowIndex),
-                  style: _helper.isTextDisabled(
-                    type,
-                    _activeDate.value,
-                    rowIndex,
-                  )
-                      ? _style.disabledStyle
-                      : _style.activeStyle,
-                ),
+          /* Picker Widget */
+          SizedBox(
+            width: double.infinity,
+            height: widget.itemExtent * widget.visibleItem,
+            child: Row(
+              children: List.generate(
+                _option.patterns.length,
+                (colIndex) {
+                  final pattern = _option.patterns[colIndex];
+                  final type = DateTimeType.fromPattern(pattern);
+
+                  return Expanded(
+                    child: PickerWidget(
+                      itemExtent: widget.itemExtent,
+                      infiniteScroll: widget.infiniteScroll,
+                      controller: _controllers[colIndex],
+                      onChange: (rowIndex) => _onChange(type, rowIndex),
+                      itemCount: _helper.itemCount(type),
+                      wheelOption: widget.wheelOption,
+                      inactiveBuilder: (rowIndex) => Container(
+                        width: double.infinity,
+                        height: widget.itemExtent,
+                        alignment: Alignment.center,
+                        decoration: _style.inactiveDecoration,
+                        child: Text(
+                          _helper.getText(type, pattern, rowIndex),
+                          style: _helper.isTextDisabled(
+                            type,
+                            _activeDate.value,
+                            rowIndex,
+                          )
+                              ? _style.disabledStyle
+                              : _style.inactiveStyle,
+                        ),
+                      ),
+                      activeBuilder: (rowIndex) => Container(
+                        width: double.infinity,
+                        height: widget.itemExtent,
+                        alignment: Alignment.center,
+                        decoration: _style.activeDecoration,
+                        child: Text(
+                          _helper.getText(type, pattern, rowIndex),
+                          style: _helper.isTextDisabled(
+                            type,
+                            _activeDate.value,
+                            rowIndex,
+                          )
+                              ? _style.disabledStyle
+                              : _style.activeStyle,
+                        ),
+                      ),
+                    ),
+                  );
+                },
               ),
-            );
-          },
-        ),
+            ),
+          ),
+        ],
       ),
     );
   }

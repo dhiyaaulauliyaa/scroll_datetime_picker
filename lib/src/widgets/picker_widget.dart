@@ -1,4 +1,3 @@
-import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:scroll_datetime_picker/scroll_datetime_picker.dart';
 import 'package:scroll_datetime_picker/src/widgets/scroll_type_listener.dart';
@@ -11,7 +10,6 @@ class PickerWidget extends StatefulWidget {
     required this.infiniteScroll,
     required this.onChange,
     required this.controller,
-    required this.centerWidget,
     required this.activeBuilder,
     required this.inactiveBuilder,
     required this.wheelOption,
@@ -23,8 +21,6 @@ class PickerWidget extends StatefulWidget {
 
   final void Function(int index) onChange;
   final ScrollController controller;
-
-  final Widget centerWidget;
   final Widget Function(int index) activeBuilder;
   final Widget Function(int index) inactiveBuilder;
 
@@ -39,6 +35,7 @@ class _PickerWidgetState extends State<PickerWidget> {
 
   final _isProgrammaticScroll = ValueNotifier<bool>(false);
   final _centerScrollCtl = ScrollController();
+  final _outerScrollCtl = ScrollController();
 
   @override
   void initState() {
@@ -64,66 +61,83 @@ class _PickerWidgetState extends State<PickerWidget> {
     widget.controller.removeListener(_scrollListener);
     _isProgrammaticScroll.dispose();
     _centerScrollCtl.dispose();
+    _outerScrollCtl.dispose();
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
     return Stack(
+      alignment: Alignment.center,
       children: [
         /* Main Scrollable */
-        ScrollTypeListener(
-          onScroll: (isProgrammaticScroll) =>
-              _isProgrammaticScroll.value = isProgrammaticScroll,
-          child: NotificationListener<ScrollNotification>(
-            onNotification: _onNotification,
-            child: ScrollConfiguration(
-              behavior: GeneralScrollBehavior(),
-              child: ListWheelScrollView.useDelegate(
-                controller: widget.controller,
-                itemExtent: widget.itemExtent,
-                physics: _wheelOption.physics,
-                perspective: _wheelOption.perspective,
-                diameterRatio: _wheelOption.diameterRatio,
-                offAxisFraction: _wheelOption.offAxisFraction,
-                squeeze: _wheelOption.squeeze,
-                renderChildrenOutsideViewport:
-                    _wheelOption.renderChildrenOutsideViewport,
-                clipBehavior: _wheelOption.clipBehavior,
-                childDelegate: ListWheelChildBuilderDelegate(
-                  childCount: widget.infiniteScroll ? null : widget.itemCount,
-                  builder: (context, index) {
-                    return Container(
-                      height: widget.itemExtent,
-                      alignment: Alignment.center,
-                      child: widget.inactiveBuilder.call(index),
-                    );
-                  },
+        IgnorePointer(
+          child: ClipPath(
+            clipper: _OuterWidgetClipper(
+              itemExtent: widget.itemExtent,
+            ),
+            child: ListWheelScrollView.useDelegate(
+              controller: _outerScrollCtl,
+              itemExtent: widget.itemExtent,
+              physics: _wheelOption.physics,
+              perspective: _wheelOption.perspective,
+              diameterRatio: _wheelOption.diameterRatio,
+              offAxisFraction: _wheelOption.offAxisFraction,
+              squeeze: _wheelOption.squeeze,
+              renderChildrenOutsideViewport:
+                  _wheelOption.renderChildrenOutsideViewport,
+              clipBehavior: _wheelOption.clipBehavior,
+              childDelegate: ListWheelChildBuilderDelegate(
+                childCount: widget.infiniteScroll ? null : widget.itemCount,
+                builder: (context, index) => Container(
+                  height: widget.itemExtent,
+                  alignment: Alignment.center,
+                  child: widget.inactiveBuilder.call(index),
                 ),
               ),
             ),
           ),
         ),
 
-        /* Center Decoration */
-        Align(child: IgnorePointer(child: widget.centerWidget)),
-
         /* Center */
-        Align(
-          child: IgnorePointer(
-            child: SizedBox(
-              height: widget.itemExtent,
-              child: ListWheelScrollView.useDelegate(
-                controller: _centerScrollCtl,
-                itemExtent: widget.itemExtent,
-                childDelegate: ListWheelChildBuilderDelegate(
-                  childCount: widget.infiniteScroll ? null : widget.itemCount,
-                  builder: (context, index) => Container(
-                    height: widget.itemExtent,
-                    alignment: Alignment.center,
-                    child: widget.activeBuilder.call(index),
-                  ),
+        IgnorePointer(
+          child: SizedBox(
+            height: widget.itemExtent,
+            child: ListWheelScrollView.useDelegate(
+              controller: _centerScrollCtl,
+              itemExtent: widget.itemExtent,
+              childDelegate: ListWheelChildBuilderDelegate(
+                childCount: widget.infiniteScroll ? null : widget.itemCount,
+                builder: (context, index) => Container(
+                  height: widget.itemExtent,
+                  alignment: Alignment.center,
+                  child: widget.activeBuilder.call(index),
                 ),
+              ),
+            ),
+          ),
+        ),
+
+        /* Main Scrollable */
+        ScrollTypeListener(
+          onScroll: (isProgrammaticScroll) =>
+              _isProgrammaticScroll.value = isProgrammaticScroll,
+          child: NotificationListener<ScrollNotification>(
+            onNotification: _onNotification,
+            child: ListWheelScrollView.useDelegate(
+              controller: widget.controller,
+              itemExtent: widget.itemExtent,
+              physics: _wheelOption.physics,
+              perspective: _wheelOption.perspective,
+              diameterRatio: _wheelOption.diameterRatio,
+              offAxisFraction: _wheelOption.offAxisFraction,
+              squeeze: _wheelOption.squeeze,
+              renderChildrenOutsideViewport:
+                  _wheelOption.renderChildrenOutsideViewport,
+              clipBehavior: _wheelOption.clipBehavior,
+              childDelegate: ListWheelChildBuilderDelegate(
+                childCount: widget.infiniteScroll ? null : widget.itemCount,
+                builder: (_, __) => SizedBox(height: widget.itemExtent),
               ),
             ),
           ),
@@ -134,6 +148,7 @@ class _PickerWidgetState extends State<PickerWidget> {
 
   void _scrollListener() {
     _centerScrollCtl.jumpTo(widget.controller.position.pixels);
+    _outerScrollCtl.jumpTo(widget.controller.position.pixels);
   }
 
   bool _onNotification(ScrollNotification notification) {
@@ -176,10 +191,37 @@ class _PickerWidgetState extends State<PickerWidget> {
   }
 }
 
-class GeneralScrollBehavior extends MaterialScrollBehavior {
+class _OuterWidgetClipper extends CustomClipper<Path> {
+  const _OuterWidgetClipper({
+    required this.itemExtent,
+  });
+
+  final double itemExtent;
+
   @override
-  Set<PointerDeviceKind> get dragDevices => {
-        PointerDeviceKind.touch,
-        PointerDeviceKind.mouse,
-      };
+  bool shouldReclip(covariant CustomClipper<Path> oldClipper) => true;
+
+  @override
+  Path getClip(Size size) {
+    const xMin = 0.0;
+    final xMax = size.width;
+    final yMin = (size.height - itemExtent) / 2;
+    final yMax = yMin + itemExtent;
+
+    final upperRect = Rect.fromPoints(
+      Offset.zero,
+      Offset(xMax, yMin),
+    );
+    final lowerRect = Rect.fromPoints(
+      Offset(xMin, yMax),
+      Offset(size.width, size.height),
+    );
+
+    final path = Path()
+      ..addRect(upperRect)
+      ..addRect(lowerRect)
+      ..close();
+
+    return path;
+  }
 }
