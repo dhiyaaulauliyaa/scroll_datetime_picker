@@ -223,7 +223,7 @@ class _ScrollDateTimePickerState extends State<ScrollDateTimePicker> {
 
       switch (_option.dateTimeTypes[i]) {
         case DateTimeType.year:
-          extent = (_helper.years.indexOf(activeDate.year)).toDouble();
+          extent = _helper.years.indexOf(activeDate.year).toDouble();
           break;
         case DateTimeType.month:
           extent = activeDate.month - 1;
@@ -251,11 +251,13 @@ class _ScrollDateTimePickerState extends State<ScrollDateTimePicker> {
           break;
       }
 
-      _controllers[i].animateTo(
-        widget.itemExtent * extent,
-        duration: const Duration(milliseconds: 100),
-        curve: Curves.easeOut,
-      );
+      if (_controllers[i].hasClients) {
+        _controllers[i].animateTo(
+          widget.itemExtent * extent,
+          duration: const Duration(milliseconds: 100),
+          curve: Curves.easeOut,
+        );
+      }
     }
   }
 
