@@ -73,11 +73,14 @@ class _ScrollDateTimePickerState extends State<ScrollDateTimePicker> {
   late DateTimePickerOption _option;
   late DateTimePickerHelper _helper;
 
+  late final ValueNotifier<bool> isRecheckingPosition;
+
   @override
   void initState() {
     super.initState();
 
     initializeDateFormatting(widget.dateOption.locale.languageCode);
+    isRecheckingPosition = ValueNotifier(false);
 
     _option = widget.dateOption;
     _activeDate = ValueNotifier<DateTime>(_option.getInitialDate);
@@ -130,6 +133,7 @@ class _ScrollDateTimePickerState extends State<ScrollDateTimePicker> {
 
   @override
   void dispose() {
+    isRecheckingPosition.dispose();
     _activeDate.dispose();
     for (final ctrl in _controllers) {
       ctrl.dispose();
@@ -261,7 +265,7 @@ class _ScrollDateTimePickerState extends State<ScrollDateTimePicker> {
     }
   }
 
-  void _onChange(DateTimeType type, int rowIndex) {
+  Future<void> _onChange(DateTimeType type, int rowIndex) async {
     var newDate = _helper.getDateFromRowIndex(
       type: type,
       rowIndex: rowIndex,
@@ -271,20 +275,24 @@ class _ScrollDateTimePickerState extends State<ScrollDateTimePicker> {
     if (newDate.isAfter(_option.maxDate)) newDate = _activeDate.value;
     if (newDate.isBefore(_option.minDate)) newDate = _activeDate.value;
 
-    /* Recheck positions */
-    _recheckPosition(DateTimeType.year, newDate);
-    _recheckPosition(DateTimeType.month, newDate);
-    _recheckPosition(DateTimeType.day, newDate);
-    _recheckPosition(DateTimeType.weekday, newDate);
-
     /* Set new date */
     _activeDate.value = newDate;
     widget.onChange?.call(newDate);
 
+    /* Recheck positions */
+    if (!isRecheckingPosition.value) {
+      isRecheckingPosition.value = true;
+      await _recheckPosition(DateTimeType.year, newDate);
+      await _recheckPosition(DateTimeType.month, newDate);
+      await _recheckPosition(DateTimeType.day, newDate);
+      await _recheckPosition(DateTimeType.weekday, newDate);
+      isRecheckingPosition.value = false;
+    }
+
     return;
   }
 
-  void _recheckPosition(DateTimeType type, DateTime date) {
+  Future<void> _recheckPosition(DateTimeType type, DateTime date) async {
     final index = _option.dateTimeTypes.indexOf(type);
     if (index != -1) {
       late int targetPosition;
@@ -305,7 +313,9 @@ class _ScrollDateTimePickerState extends State<ScrollDateTimePicker> {
         default:
           break;
       }
-      _fixPosition(
+
+      /* Check if other scroll controller is still scrolling */
+      await _fixPosition(
         controller: _controllers[index],
         itemCount: _helper.itemCount(type),
         targetPosition: targetPosition,
@@ -313,11 +323,11 @@ class _ScrollDateTimePickerState extends State<ScrollDateTimePicker> {
     }
   }
 
-  void _fixPosition({
+  Future<void> _fixPosition({
     required ScrollController controller,
     required int itemCount,
     required int targetPosition,
-  }) {
+  }) async {
     if (controller.hasClients) {
       final scrollPosition =
           (controller.offset / widget.itemExtent).floor() % itemCount + 1;
@@ -327,15 +337,18 @@ class _ScrollDateTimePickerState extends State<ScrollDateTimePicker> {
         final endOffset = controller.offset - (difference * widget.itemExtent);
 
         if (!controller.position.isScrollingNotifier.value) {
-          Future.delayed(Duration.zero, () {
-            controller.animateTo(
+          await Future.delayed(
+            const Duration(milliseconds: 100),
+            () => controller.animateTo(
               endOffset,
               duration: const Duration(milliseconds: 500),
               curve: Curves.bounceOut,
-            );
-          });
+            ),
+          );
         }
       }
     }
+
+    return;
   }
 }
