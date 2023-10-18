@@ -2,6 +2,7 @@ name: scroll_datetime_picker
 description: A Scrollable DateTimePicker, inspired by the CupertinoDatePicker but with more extensive customizable features.
 version: 0.0.3
 homepage: https://ad.auliyaa.com
+repository: https://github.com/dhiyaaulauliyaa/scroll_datetime_picker
 
 environment:
   sdk: '>=2.18.6 <3.0.0'
