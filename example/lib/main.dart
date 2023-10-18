@@ -23,7 +23,6 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      useInheritedMediaQuery: true,
       locale: DevicePreview.locale(context),
       builder: DevicePreview.appBuilder,
       theme: AppTheme.themeData,
@@ -146,7 +145,7 @@ class _MyHomePageState extends State<MyHomePage> {
                 'EEEE dd MMMM yyyy',
                 DevicePreview.locale(context)?.languageCode,
               ).format(date),
-              style: Theme.of(context).textTheme.headline5,
+              style: Theme.of(context).textTheme.headlineSmall,
               textAlign: TextAlign.center,
             ),
             Text(
@@ -154,7 +153,7 @@ class _MyHomePageState extends State<MyHomePage> {
                 'HH:mm:ss',
                 DevicePreview.locale(context)?.languageCode,
               ).format(time),
-              style: Theme.of(context).textTheme.headline3,
+              style: Theme.of(context).textTheme.displaySmall,
               textAlign: TextAlign.center,
             ),
             const SizedBox(height: 20),
