@@ -1,4 +1,5 @@
 import 'package:device_preview/device_preview.dart';
+import 'package:example/customizer/screens/customizer_screen.dart';
 import 'package:example/theme/app_color.dart';
 import 'package:example/theme/app_theme.dart';
 import 'package:flutter/material.dart';
@@ -157,6 +158,47 @@ class _MyHomePageState extends State<MyHomePage> {
               textAlign: TextAlign.center,
             ),
             const SizedBox(height: 20),
+
+            /* Customizer */
+            Container(
+              margin: const EdgeInsets.all(16),
+              child: ElevatedButton(
+                style: ButtonStyle(
+                  foregroundColor: MaterialStateProperty.resolveWith(
+                    (states) => AppColor.black,
+                  ),
+                  backgroundColor: MaterialStateProperty.resolveWith<Color>(
+                    (states) => states.contains(MaterialState.hovered)
+                        ? AppColor.secondary.withOpacity(0.8)
+                        : AppColor.secondary,
+                  ),
+                  side: MaterialStateProperty.resolveWith<BorderSide>(
+                    (states) => const BorderSide(width: 3),
+                  ),
+                ),
+                onPressed: () => Navigator.of(context).push(
+                  MaterialPageRoute<Widget>(
+                    builder: (context) => const CustomizerScreen(),
+                  ),
+                ),
+                child: const Padding(
+                  padding: EdgeInsets.all(20),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text(
+                        'Customize Here',
+                        style: TextStyle(fontSize: 30),
+                      ),
+                      Icon(
+                        Icons.arrow_right_alt,
+                        size: 40,
+                      )
+                    ],
+                  ),
+                ),
+              ),
+            ),
           ],
         ),
       ),
