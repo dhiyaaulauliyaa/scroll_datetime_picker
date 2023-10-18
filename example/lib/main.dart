@@ -188,11 +188,11 @@ class _MyHomePageState extends State<MyHomePage> {
                       builder: (context) => const CustomizerScreen(),
                     ),
                   ),
-                  child: const Padding(
-                    padding: EdgeInsets.all(20),
+                  child: Padding(
+                    padding: const EdgeInsets.all(20),
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
+                      children: const [
                         Text(
                           'Customize Here',
                           style: TextStyle(fontSize: 30),
