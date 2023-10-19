@@ -1,3 +1,6 @@
+## 0.0.4
+-  Added itemBuilder to provide customization for every item in the picker.
+
 ## 0.0.3
 - Enhanced the logic for making outer widgets disappear when reaching the center area.
 - Resolved a bug that caused empty patterns when using DateFormat with only one pattern type.
