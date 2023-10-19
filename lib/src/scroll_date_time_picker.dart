@@ -10,6 +10,14 @@ part 'entities/date_time_picker_option.dart';
 part 'entities/date_time_picker_style.dart';
 part 'entities/date_time_picker_wheel_option.dart';
 
+typedef DateTimePickerItemBuilder = Widget Function(
+  BuildContext context,
+  String pattern,
+  String text,
+  bool isActive,
+  bool isDisabled,
+);
+
 /// A customizable Scrollable DateTimePicker.
 ///
 /// To set a custom datetime format, use DateFormat available in
@@ -22,6 +30,7 @@ class ScrollDateTimePicker extends StatefulWidget {
     required this.itemExtent,
     required this.dateOption,
     required this.onChange,
+    this.itemBuilder,
     this.style,
     this.visibleItem = 3,
     this.infiniteScroll = false,
@@ -53,13 +62,21 @@ class ScrollDateTimePicker extends StatefulWidget {
   /// Must not be null.
   final DateTimePickerOption dateOption;
 
-  /// Set picker styles
+  /// Set picker styles.
+  ///
+  /// If [itemBuilder] is not null, this value will be omitted.
   final DateTimePickerStyle? style;
 
   /// Set custom appearance for the picker wheel
   ///
   /// The parameters here are based on flutter's [ListWheelScrollView]
   final DateTimePickerWheelOption wheelOption;
+
+  /// Set custom appearance for every item in the picker wheel
+  ///
+  /// - If null, the appearance of every item will be based on DateTimePickerStyle [style]
+  /// - If not null, the appearance of every item will be based return value of this builder
+  final DateTimePickerItemBuilder? itemBuilder;
 
   @override
   State<ScrollDateTimePicker> createState() => _ScrollDateTimePickerState();
@@ -176,38 +193,64 @@ class _ScrollDateTimePickerState extends State<ScrollDateTimePicker> {
                       onChange: (rowIndex) => _onChange(type, rowIndex),
                       itemCount: _helper.itemCount(type),
                       wheelOption: widget.wheelOption,
-                      inactiveBuilder: (rowIndex) => Container(
-                        width: double.infinity,
-                        height: widget.itemExtent,
-                        alignment: Alignment.center,
-                        decoration: _style.inactiveDecoration,
-                        child: Text(
-                          _helper.getText(type, pattern, rowIndex),
-                          style: _helper.isTextDisabled(
-                            type,
-                            _activeDate.value,
-                            rowIndex,
-                          )
-                              ? _style.disabledStyle
-                              : _style.inactiveStyle,
-                        ),
-                      ),
-                      activeBuilder: (rowIndex) => Container(
-                        width: double.infinity,
-                        height: widget.itemExtent,
-                        alignment: Alignment.center,
-                        decoration: _style.activeDecoration,
-                        child: Text(
-                          _helper.getText(type, pattern, rowIndex),
-                          style: _helper.isTextDisabled(
-                            type,
-                            _activeDate.value,
-                            rowIndex,
-                          )
-                              ? _style.disabledStyle
-                              : _style.activeStyle,
-                        ),
-                      ),
+                      inactiveBuilder: (rowIndex) {
+                        final text = _helper.getText(type, pattern, rowIndex);
+                        final isDisabled = _helper.isTextDisabled(
+                          type,
+                          _activeDate.value,
+                          rowIndex,
+                        );
+
+                        return widget.itemBuilder != null
+                            ? widget.itemBuilder!(
+                                context,
+                                pattern,
+                                text,
+                                false,
+                                isDisabled,
+                              )
+                            : Container(
+                                width: double.infinity,
+                                height: widget.itemExtent,
+                                alignment: Alignment.center,
+                                decoration: _style.inactiveDecoration,
+                                child: Text(
+                                  text,
+                                  style: isDisabled
+                                      ? _style.disabledStyle
+                                      : _style.inactiveStyle,
+                                ),
+                              );
+                      },
+                      activeBuilder: (rowIndex) {
+                        final text = _helper.getText(type, pattern, rowIndex);
+                        final isDisabled = _helper.isTextDisabled(
+                          type,
+                          _activeDate.value,
+                          rowIndex,
+                        );
+
+                        return widget.itemBuilder != null
+                            ? widget.itemBuilder!(
+                                context,
+                                pattern,
+                                text,
+                                true,
+                                isDisabled,
+                              )
+                            : Container(
+                                width: double.infinity,
+                                height: widget.itemExtent,
+                                alignment: Alignment.center,
+                                decoration: _style.activeDecoration,
+                                child: Text(
+                                  text,
+                                  style: isDisabled
+                                      ? _style.disabledStyle
+                                      : _style.activeStyle,
+                                ),
+                              );
+                      },
                     ),
                   );
                 },
