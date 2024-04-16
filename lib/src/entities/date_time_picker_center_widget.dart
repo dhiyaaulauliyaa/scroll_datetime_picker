@@ -113,7 +113,7 @@ class DateTimePickerCenterWidget {
 /// This extension includes methods for checking the presence of custom center
 /// widgets for individual date or time types, as well as retrieving the center
 /// widget for a specific date or time type.
-extension _DateTimePickerCenterWidgetX on DateTimePickerCenterWidget {
+extension DateTimePickerCenterWidgetX on DateTimePickerCenterWidget {
   /// Indicates whether any type-specific custom center widget is set.
   ///
   /// This property checks if any of the type-specific custom center widget

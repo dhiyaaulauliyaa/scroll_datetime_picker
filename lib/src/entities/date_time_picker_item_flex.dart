@@ -61,7 +61,7 @@ class DateTimePickerItemFlex {
 }
 
 /// Extension to retrieve the flex width for a specific [DateTimeType].
-extension _DateTimePickerItemX on DateTimePickerItemFlex {
+extension DateTimePickerItemFlexX on DateTimePickerItemFlex {
   /// Retrieves the flex width for a specific [DateTimeType].
   ///
   /// - [type]: The date or time type for which to get the flex width.
