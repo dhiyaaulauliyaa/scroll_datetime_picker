@@ -84,12 +84,15 @@ class _MyHomePageState extends State<MyHomePage> {
                   maxDate: DateTime(2024, 6),
                   initialDate: date,
                 ),
-                style: DateTimePickerStyle(
-                  centerDecoration: BoxDecoration(
-                    color: AppColor.secondary,
-                    borderRadius: BorderRadius.circular(30),
-                    border: Border.all(width: 3),
+                centerWidget: DateTimePickerCenterWidget(
+                  builder: (context, constraints, child) => const DecoratedBox(
+                    decoration: ShapeDecoration(
+                      shape: StadiumBorder(side: BorderSide(width: 3)),
+                      color: AppColor.secondary,
+                    ),
                   ),
+                ),
+                style: DateTimePickerStyle(
                   activeStyle: TextStyle(
                     fontSize: 20,
                     letterSpacing: -0.5,
@@ -128,14 +131,18 @@ class _MyHomePageState extends State<MyHomePage> {
                 onChange: (datetime) => setState(() {
                   time = datetime;
                 }),
-                style: DateTimePickerStyle(
-                  centerDecoration: const BoxDecoration(
-                    color: AppColor.primary,
-                    border: Border(
-                      top: BorderSide(width: 3),
-                      bottom: BorderSide(width: 3),
+                centerWidget: DateTimePickerCenterWidget(
+                  builder: (context, constraints, child) => const DecoratedBox(
+                    decoration: BoxDecoration(
+                      color: AppColor.primary,
+                      border: Border(
+                        top: BorderSide(width: 3),
+                        bottom: BorderSide(width: 3),
+                      ),
                     ),
                   ),
+                ),
+                style: DateTimePickerStyle(
                   activeStyle: const TextStyle(
                     fontSize: 28,
                     letterSpacing: -0.5,
