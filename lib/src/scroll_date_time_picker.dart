@@ -10,6 +10,7 @@ part 'entities/date_time_picker_option.dart';
 part 'entities/date_time_picker_style.dart';
 part 'entities/date_time_picker_wheel_option.dart';
 part 'entities/date_time_picker_item_flex.dart';
+part 'entities/date_time_picker_center_widget.dart';
 
 typedef DateTimePickerItemBuilder = Widget Function(
   BuildContext context,
@@ -37,6 +38,7 @@ class ScrollDateTimePicker extends StatefulWidget {
     this.infiniteScroll = false,
     this.itemFlex = const DateTimePickerItemFlex(),
     this.wheelOption = const DateTimePickerWheelOption(),
+    this.centerWidget = const DateTimePickerCenterWidget(),
   });
 
   /// Height of every item in the picker
@@ -88,6 +90,19 @@ class ScrollDateTimePicker extends StatefulWidget {
   ///
   /// Defaults to `const DateTimePickerItemFlex()` with all values set to 1.
   final DateTimePickerItemFlex itemFlex;
+
+  /// Custom center widget settings for each date and time item in the picker wheel.
+  ///
+  /// This parameter allows you to specify custom center widgets for each date and
+  /// time item, such as year, month, day, hour, minute, and second, allowing for
+  /// a more customizable layout. You can set different widgets for each
+  /// date and time type or use a custom builder to customize the appearance
+  /// of the center area in the picker.
+  ///
+  /// - If not set, the center widget will be a default layout with no customization.
+  /// - Use the individual widget parameters in `DateTimePickerCenterWidget` to specify
+  ///   custom widgets for each date and time type.
+  final DateTimePickerCenterWidget centerWidget;
 
   @override
   State<ScrollDateTimePicker> createState() => _ScrollDateTimePickerState();
@@ -180,10 +195,35 @@ class _ScrollDateTimePickerState extends State<ScrollDateTimePicker> {
           alignment: Alignment.center,
           children: [
             /* Center Decoration */
-            Container(
+            SizedBox(
               height: widget.itemExtent,
-              width: double.infinity,
-              decoration: _style.centerDecoration,
+              width: constraints.maxWidth,
+              child: LayoutBuilder(
+                builder: (context, constraints) {
+                  final child = widget.centerWidget.hasTypeSpecificCenterWidgets
+                      ? Row(
+                          children: List.generate(
+                            _option.patterns.length,
+                            (colIndex) {
+                              final pattern = _option.patterns[colIndex];
+                              final type = DateTimeType.fromPattern(pattern);
+
+                              return Expanded(
+                                flex: widget.itemFlex.getFlex(type),
+                                child:
+                                    widget.centerWidget.getCenterWidget(type) ??
+                                        const SizedBox(),
+                              );
+                            },
+                          ),
+                        )
+                      : const SizedBox();
+
+                  return widget.centerWidget.builder
+                          ?.call(context, constraints, child) ??
+                      child;
+                },
+              ),
             ),
 
             /* Picker Widget */
