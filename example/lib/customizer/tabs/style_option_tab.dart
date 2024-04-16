@@ -213,7 +213,7 @@ class _SubHeader extends StatelessWidget {
             Icon(
               isOpened ? Icons.arrow_drop_down : Icons.arrow_drop_up,
               color: Colors.white,
-            )
+            ),
           ],
         ),
       ),

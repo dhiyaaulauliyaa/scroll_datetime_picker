@@ -185,10 +185,10 @@ class _CustomizerScreenState extends State<CustomizerScreen>
                     onVisibleItemChanged: (val) => setState(
                       () => visibleItem = val.floor(),
                     ),
-                  )
+                  ),
                 ],
               ),
-            )
+            ),
           ],
         ),
       ),
