@@ -69,19 +69,20 @@ class _MyHomePageState extends State<MyHomePage> {
                 onChange: (datetime) => setState(() {
                   date = datetime;
                 }),
+                itemFlex: const DateTimePickerItemFlex(
+                  weekdayFlex: 7,
+                  dayFlex: 2,
+                  monthFlex: 8,
+                  yearFlex: 4,
+                ),
                 dateOption: DateTimePickerOption(
                   dateFormat: DateFormat(
-                    'EddMMMy',
+                    'EEEEddMMMMy',
                     DevicePreview.locale(context)?.languageCode,
                   ),
                   minDate: DateTime(2000, 6),
                   maxDate: DateTime(2024, 6),
                   initialDate: date,
-                ),
-                wheelOption: const DateTimePickerWheelOption(
-                  offAxisFraction: 1.25,
-                  perspective: 0.01,
-                  squeeze: 1.2,
                 ),
                 style: DateTimePickerStyle(
                   centerDecoration: BoxDecoration(
@@ -90,16 +91,16 @@ class _MyHomePageState extends State<MyHomePage> {
                     border: Border.all(width: 3),
                   ),
                   activeStyle: TextStyle(
-                    fontSize: 24,
+                    fontSize: 20,
                     letterSpacing: -0.5,
                     color: Theme.of(context).primaryColor,
                   ),
                   inactiveStyle: TextStyle(
-                    fontSize: 20,
+                    fontSize: 18,
                     color: Theme.of(context).primaryColor.withOpacity(0.7),
                   ),
                   disabledStyle: TextStyle(
-                    fontSize: 20,
+                    fontSize: 18,
                     color: Theme.of(context).disabledColor,
                   ),
                 ),
@@ -110,6 +111,11 @@ class _MyHomePageState extends State<MyHomePage> {
               ScrollDateTimePicker(
                 itemExtent: 54,
                 infiniteScroll: true,
+                wheelOption: const DateTimePickerWheelOption(
+                  offAxisFraction: 1,
+                  perspective: 0.01,
+                  squeeze: 1.2,
+                ),
                 dateOption: DateTimePickerOption(
                   dateFormat: DateFormat(
                     'hhmmss a',
@@ -195,12 +201,12 @@ class _MyHomePageState extends State<MyHomePage> {
                       children: [
                         Text(
                           'Customize Here',
-                          style: TextStyle(fontSize: 30),
+                          style: TextStyle(fontSize: 24),
                         ),
                         Icon(
                           Icons.arrow_right_alt,
                           size: 40,
-                        )
+                        ),
                       ],
                     ),
                   ),
