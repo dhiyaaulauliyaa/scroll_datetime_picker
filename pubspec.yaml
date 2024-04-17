@@ -17,14 +17,14 @@ platforms:
   windows:
 
 environment:
-  sdk: '>=2.18.6 <3.0.0'
+  sdk: '>=2.18.6 <4.0.0'
   flutter: ">=1.17.0"
 
 dependencies:
   flutter:
     sdk: flutter
   intl: ^0.18.0
-  mockito: ^5.4.4
+  mockito: ^5.4.2
 
 dev_dependencies:
   flutter_test:
