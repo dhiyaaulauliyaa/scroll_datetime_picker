@@ -17,7 +17,7 @@ platforms:
   windows:
 
 environment:
-  sdk: '>=2.18.6 <4.0.0'
+  sdk: '>=2.19.0 <4.0.0'
   flutter: ">=1.17.0"
 
 dependencies:
