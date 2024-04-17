@@ -26,7 +26,6 @@ class _StyleOptionTabState extends State<StyleOptionTab> {
   bool _disabledTextStyleOpen = false;
   bool _activeDecorationOpen = false;
   bool _inactiveDecorationOpen = false;
-  bool _centerDecorationOpen = false;
 
   late DateTimePickerStyle _style;
 
@@ -43,25 +42,25 @@ class _StyleOptionTabState extends State<StyleOptionTab> {
       children: [
         const SizedBox(height: 16),
 
-        /* Center Decoration */
-        _SubHeader(
-          title: 'Center Decoration',
-          isOpened: _centerDecorationOpen,
-          onTap: () => setState(() {
-            _centerDecorationOpen = !_centerDecorationOpen;
-          }),
-        ),
-        AnimatedSwitcher(
-          duration: const Duration(milliseconds: 150),
-          child: !_centerDecorationOpen
-              ? const SizedBox(width: double.infinity)
-              : BoxDecorationCustomizer(
-                  initialValue: _style.centerDecoration,
-                  onChanged: (value) => _onChanged(
-                    _style.copyWith(centerDecoration: value),
-                  ),
-                ),
-        ),
+        // /* Center Decoration */
+        // _SubHeader(
+        //   title: 'Center Decoration',
+        //   isOpened: _centerDecorationOpen,
+        //   onTap: () => setState(() {
+        //     _centerDecorationOpen = !_centerDecorationOpen;
+        //   }),
+        // ),
+        // AnimatedSwitcher(
+        //   duration: const Duration(milliseconds: 150),
+        //   child: !_centerDecorationOpen
+        //       ? const SizedBox(width: double.infinity)
+        //       : BoxDecorationCustomizer(
+        //           initialValue: _style.centerDecoration,
+        //           onChanged: (value) => _onChanged(
+        //             _style.copyWith(centerDecoration: value),
+        //           ),
+        //         ),
+        // ),
 
         /* Active TextStyle */
         _SubHeader(
