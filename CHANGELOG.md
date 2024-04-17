@@ -1,3 +1,10 @@
+## 0.1.0
+
+- **New Feature** Customizable Item Flex: 
+   Added `DatePickerItemFlex` to provide customization of each picker item's width by specifying the flex value for individual date/time items. This allows for precise control over the layout and distribution of space within the picker.
+- **New Feature** Customizable Center Widget:
+   Added `DateTimePickerCenterWidget`, offering greater flexibility in creating a custom widget for the center area of the picker.
+
 ## 0.0.4
 -  Added itemBuilder to provide customization for every item in the picker.
 
@@ -21,3 +28,8 @@
 
 ## 0.0.1
 - First release, create ScrollDateTimePicker and its supporting objects & widgets.
+
+
+Here is an example changelog entry for the new feature (customizable item flex and center widget) in version 0.1.0:
+
+

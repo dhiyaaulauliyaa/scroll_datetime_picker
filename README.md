@@ -19,36 +19,39 @@ and the Flutter guide for
 
 Welcome to the Scroll DateTime Picker – a versatile and highly customizable Flutter package that allows you to effortlessly pick dates, times, or both. Inspired by the CupertinoDatePicker, our package provides a wealth of features for your date and time selection needs.
 
-
 ## [🔬 Test The Package 🔬](https://dhiyaaulauliyaa.github.io/scroll_datetime_picker/#/)
+
 - Access the example web page [here](https://dhiyaaulauliyaa.github.io/scroll_datetime_picker/#/)
 - The homepage features a straightforward example of the Scroll DateTime Picker.
 - To create your own configuration, access the `Customizer Page` by clicking the `Customize Here` button.
 
-
 ## Key Features
 
-`🗓️ Customize Date/Time Format`<br>
-`📅 Customize Date/Time Order`<br>
-`🌍 Customize Date/Time Locale`<br>
-`✏️ Customize Date/Time TextStyles`<br>
-`🎨 Customize Date/Time Decoration`<br>
-`🛞 Customize Scroll Wheel Appearance`<br>
-`📜 Choose Between Infinite/Finite Scroll`<br>
-`🧠 Smart Detection on Invalid Date & Leap Year Handling`<br>
+- [🗓️ Customize Date/Time Format](#%EF%B8%8F-customize-datetime-format)<br>
+- [📅 Customize Date/Time Order](#-customize-datetime-order)<br>
+- [🌍 Customize Date/Time Locale](#-customize-datetime-locale)<br>
+- [✏️ Customize Date/Time TextStyles](#%EF%B8%8F-customize-datetime-textstyles)<br>
+- [🛞 Customize Scroll Wheel Appearance](#-customize-scroll-wheel-appearance)<br>
+- [🎨 Fully Customize Date/Time Picker Appearance](#-fully-customize-datetime-picker-appearance)<br>
+- [📜 Choose Between Infinite/Finite Scroll](#-choose-between-infinitefinite-scroll)<br>
+- [🧠 Smart Detection on Invalid Date & Leap Year Handling](#-smart-detection-on-invalid-date-and-leap-year-handling)<br>
 
 ## Usage
+
 Add to pubspec.yaml
+
 ```
 dart pub add scroll_datetime_picker
 ```
 
 Import the package
+
 ```
 import 'package:scroll_datetime_picker/scroll_datetime_picker.dart';
 ```
 
 Simple usage example
+
 ```
 ScrollDateTimePicker(
   itemExtent: 54,
@@ -169,30 +172,6 @@ style: DateTimePickerStyle(
 
 ---
 
-### 🎨 Customize Date/Time Decoration (Color, Border, BorderRadius, etc)
-
-> Customize the visual aspects such as Color, Border, BorderRadius, etc by specifying your own BoxDecoration.
-
-To customize BoxDecoration, use `DateTimePickerStyle` class and pass the BoxDecoration params. The modifiable styles are:
-
-- `ActiveDecoration`: Style for widget in the center area of the picker
-- `InactiveDecoration`: Style for widget outside center area of the picker
-- `CenterDecoration`: Style that will be applied to the center area of the picker.
-
-Here's an example:
-
-```
-style: DateTimePickerStyle(
-   centerDecoration: BoxDecoration(
-      color: AppColor.secondary,
-      borderRadius: BorderRadius.circular(50),
-      border: Border.all(width: 3),
-    ),
-),
-```
-
----
-
 ### 🛞 Customize Scroll Wheel Appearance
 
 > Define the wheel's appearance, from flat to rounded.
@@ -246,6 +225,100 @@ Choose between finite and infinite scrolling based on your requirements:
 
 ---
 
+### 🎨 Fully Customize Date/Time Picker Appearance
+
+> Gain complete control over the date/time picker's appearance with a variety of customization options:
+
+#### Customize Flex Width for Every Date/Time Item
+
+You can control the width (flex) of each date/time item using the `DateTimePickerItemFlex` class:
+
+```dart
+ScrollDateTimePicker(
+  itemFlex: const DateTimePickerItemFlex(
+    weekdayFlex: 7,
+    dayFlex: 2,
+    monthFlex: 8,
+    yearFlex: 4,
+  ),
+),
+```
+
+In this example, the flex values for each item type (weekday, day, month, year) are specified.
+
+#### Customize the Center Area of the Picker
+
+You can customize the center area of the picker (usually the area that indicates the date/time chosen) using the `DateTimePickerCenterWidget` class. Users can choose to customize the center area for all items at once or individually for each date/time item:
+
+```dart
+ScrollDateTimePicker(
+  centerWidget: DateTimePickerCenterWidget(
+    builder: (context, constraints, child) => const DecoratedBox(
+      decoration: ShapeDecoration(
+        shape: StadiumBorder(side: BorderSide(width: 3)),
+        color: AppColor.secondary,
+      ),
+    ),
+  ),
+),
+```
+
+In this example, the center area is customized with a specific shape decoration and color.
+
+#### Customize Each Item Based on Its State
+
+You can customize each item on the date picker based on its state (active at the center area, non-active outside the center area, disabled if the item is invalid) using the `itemBuilder` parameter:
+
+```dart
+ScrollDateTimePicker(
+  itemBuilder: (context, pattern, text, isActive, isDisabled) =>
+      Text(
+        text,
+        style: TextStyle(
+          color: isDisabled
+              ? Colors.grey
+              : isActive
+                  ? Colors.blue
+                  : Colors.black,
+        ),
+  ),
+),
+```
+
+In this example, the text style is customized based on whether the item is active or disabled.
+
+#### Customize Using BoxDecoration
+
+You can customize the visual aspects such as color, border, and border radius of the date/time picker using the `DateTimePickerStyle` class. Modify the `BoxDecoration` parameters to achieve your desired appearance:
+
+- `ActiveDecoration`: Style for the widget in the center area of the picker.
+- `InactiveDecoration`: Style for the widget outside the center area of the picker.
+- `CenterDecoration`: Style that will be applied to the center area of the picker.
+
+Here's an example:
+
+```dart
+style: DateTimePickerStyle(
+  activeStyle: TextStyle(
+    fontSize: 24,
+    letterSpacing: -0.5,
+    color: Theme.of(context).primaryColor,
+  ),
+  inactiveStyle: TextStyle(
+    fontSize: 20,
+    color: Theme.of(context).primaryColor.withOpacity(0.7),
+  ),
+  disabledStyle: TextStyle(
+    fontSize: 20,
+    color: Theme.of(context).disabledColor,
+  ),
+),
+```
+
+In this example, the active, inactive, and disabled item of the picker is customized with a specific TextStyle
+
+---
+
 ### 🧠 Smart Detection on Invalid Date and Leap Year Handling
 
 > Ensure a smooth experience with intelligent handling of invalid dates and leap years.
@@ -254,10 +327,10 @@ Choose between finite and infinite scrolling based on your requirements:
 - If the picker wheel stops at an invalid date (e.g. `31 Jun 2021`), the picker will automatically adjust the date. In this case, the day will automatically scrolled to be `30 Jun 2021`
 - If the picker wheel stops at an invalid leap year date e.g. `30 Feb 2020`, the picker will automatically fix the invalid value. In this case, the day will automatically scrolled to be `29 Feb 2020`
 
+## 😇 Contribute
 
-## 😇 Contribute  
 We are always thrilled to welcome anyone who wishes to enhance this package. Your contributions are greatly appreciated! 🙇‍♂️
 
-
 ## 💡 Issue / Feature Requests
+
 If you have specific features in mind, don't hesitate to let me know. Please open an issue to discuss your feature requests, and I'll be more than happy to consider them and collaborate towards making this package even better. 🙏

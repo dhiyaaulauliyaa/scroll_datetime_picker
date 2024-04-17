@@ -43,14 +43,14 @@ class CustomizerListTile extends StatelessWidget {
               Expanded(
                 flex: valueFlex,
                 child: value,
-              )
+              ),
             ],
           ),
           if (!isLast)
             const Divider(
               color: AppColor.black,
               thickness: 1.5,
-            )
+            ),
         ],
       ),
     );

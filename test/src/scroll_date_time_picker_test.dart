@@ -76,7 +76,6 @@ void main() {
                 initialDate: DateTime(2020),
               ),
               style: DateTimePickerStyle(
-                centerDecoration: const BoxDecoration(color: Colors.white),
                 activeStyle: const TextStyle(color: styleColor),
               ),
               itemBuilder: (
@@ -151,10 +150,145 @@ void main() {
       },
     );
   });
+
+  testWidgets('ScrollDateTimePicker applies itemFlex correctly',
+      (tester) async {
+    const customItemFlex = DateTimePickerItemFlex(
+      yearFlex: 3,
+      monthFlex: 4,
+      dayFlex: 2,
+    );
+
+    await tester.pumpWidget(
+      MaterialApp(
+        home: ScrollDateTimePicker(
+          key: const Key('ScrollDateTimePicker'),
+          itemExtent: 54,
+          dateOption: DateTimePickerOption(
+            dateFormat: DateFormat('yyyyMMdd'),
+            minDate: DateTime(2020),
+            maxDate: DateTime(2025),
+            initialDate: DateTime(2023),
+          ),
+          onChange: (datetime) {},
+          itemFlex: customItemFlex,
+        ),
+      ),
+    );
+
+    await tester.pumpAndSettle(const Duration(milliseconds: 200));
+
+    // Find the expanded widget with correct flex value based on the itemFlex
+    final yearWidgetFinder = find.byWidgetPredicate(
+      (Widget widget) =>
+          widget is Expanded && widget.flex == customItemFlex.yearFlex,
+    );
+    final monthWidgetFinder = find.byWidgetPredicate(
+      (Widget widget) =>
+          widget is Expanded && widget.flex == customItemFlex.monthFlex,
+    );
+    final dayWidgetFinder = find.byWidgetPredicate(
+      (Widget widget) =>
+          widget is Expanded && widget.flex == customItemFlex.dayFlex,
+    );
+
+    // Expect the expanded widget with correct flex value based on the itemFlex is exists
+    expect(yearWidgetFinder, findsOneWidget);
+    expect(monthWidgetFinder, findsOneWidget);
+    expect(dayWidgetFinder, findsOneWidget);
+
+    // Verify the flex values of each picker widget
+    expect(
+      tester.widget<Expanded>(yearWidgetFinder).flex,
+      equals(customItemFlex.yearFlex),
+    );
+    expect(
+      tester.widget<Expanded>(monthWidgetFinder).flex,
+      equals(customItemFlex.monthFlex),
+    );
+    expect(
+      tester.widget<Expanded>(dayWidgetFinder).flex,
+      equals(customItemFlex.dayFlex),
+    );
+
+    // Expect the expanded widget with unmatch flex value based on item flex is not found
+    final widgetFinder = find.byWidgetPredicate(
+      (Widget widget) => widget is Expanded && widget.flex == 10000,
+    );
+    expect(widgetFinder, findsNothing);
+  });
+
+  testWidgets('ScrollDateTimePicker uses centerWidget correctly',
+      (tester) async {
+    final customCenterWidget = DateTimePickerCenterWidget(
+      year: const DecoratedBox(
+        key: ValueKey('Y-CenterWidget'),
+        decoration: BoxDecoration(color: Colors.amber),
+      ),
+      month: const DecoratedBox(
+        key: ValueKey('M-CenterWidget'),
+        decoration: BoxDecoration(color: Colors.amber),
+      ),
+      day: const DecoratedBox(
+        key: ValueKey('D-CenterWidget'),
+        decoration: BoxDecoration(color: Colors.amber),
+      ),
+      hour24: const DecoratedBox(
+        key: ValueKey('H24-CenterWidget'),
+        decoration: BoxDecoration(color: Colors.amber),
+      ),
+      minute: const DecoratedBox(
+        key: ValueKey('Min-CenterWidget'),
+        decoration: BoxDecoration(color: Colors.amber),
+      ),
+      second: const DecoratedBox(
+        key: ValueKey('Sec-CenterWidget'),
+        decoration: BoxDecoration(color: Colors.amber),
+      ),
+      builder: (context, constraints, child) => child,
+    );
+
+    await tester.pumpWidget(
+      MaterialApp(
+        home: ScrollDateTimePicker(
+          key: const Key('ScrollDateTimePicker'),
+          itemExtent: 54,
+          dateOption: DateTimePickerOption(
+            dateFormat: DateFormat('yyyyMMddHHmmss'),
+            minDate: DateTime(2020),
+            maxDate: DateTime(2025),
+            initialDate: DateTime(2023),
+          ),
+          onChange: (datetime) {},
+          centerWidget: customCenterWidget,
+        ),
+      ),
+    );
+
+    await tester.pumpAndSettle(const Duration(milliseconds: 200));
+
+    // Find the center widget based on value key
+    final yearFinder = find.byKey(customCenterWidget.year!.key!);
+    final monthFinder = find.byKey(customCenterWidget.month!.key!);
+    final dayFinder = find.byKey(customCenterWidget.day!.key!);
+    final hour24Finder = find.byKey(customCenterWidget.hour24!.key!);
+    final minuteFinder = find.byKey(customCenterWidget.minute!.key!);
+    final secondFinder = find.byKey(customCenterWidget.second!.key!);
+    
+    // Verify every center widget was found
+    expect(yearFinder, findsOneWidget);
+    expect(monthFinder, findsOneWidget);
+    expect(dayFinder, findsOneWidget);
+    expect(hour24Finder, findsOneWidget);
+    expect(minuteFinder, findsOneWidget);
+    expect(secondFinder, findsOneWidget);
+  });
 }
 
 class _TestPage extends StatefulWidget {
-  const _TestPage({required this.format});
+  const _TestPage({
+    required this.format,
+  });
 
   final DateFormat format;
 
@@ -210,7 +344,6 @@ class _TestPageState extends State<_TestPage> {
           initialDate: date,
         ),
         style: DateTimePickerStyle(
-          centerDecoration: const BoxDecoration(color: Colors.white),
           activeStyle: TextStyle(
             fontSize: 20,
             color: Theme.of(context).primaryColor,

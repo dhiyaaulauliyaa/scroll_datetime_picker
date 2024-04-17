@@ -50,11 +50,11 @@ class CustomizerSliderTile extends StatelessWidget {
                   maxLines: 1,
                   textAlign: TextAlign.end,
                   style: const TextStyle(
-                   fontSize: 20,
+                    fontSize: 20,
                     fontWeight: FontWeight.w400,
                   ),
                 ),
-              )
+              ),
             ],
           ),
           Slider(
@@ -68,7 +68,7 @@ class CustomizerSliderTile extends StatelessWidget {
             const Divider(
               color: AppColor.black,
               thickness: 1.5,
-            )
+            ),
         ],
       ),
     );

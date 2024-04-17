@@ -9,7 +9,6 @@ extension DateTimePickerStyleX on DateTimePickerStyle {
     TextStyle? disabledStyle,
     BoxDecoration? activeDecoration,
     BoxDecoration? inactiveDecoration,
-    BoxDecoration? centerDecoration,
   }) =>
       DateTimePickerStyle(
         activeStyle: activeStyle ?? this.activeStyle,
@@ -17,7 +16,6 @@ extension DateTimePickerStyleX on DateTimePickerStyle {
         disabledStyle: disabledStyle ?? this.disabledStyle,
         activeDecoration: activeDecoration ?? this.activeDecoration,
         inactiveDecoration: inactiveDecoration ?? this.inactiveDecoration,
-        centerDecoration: centerDecoration ?? this.centerDecoration,
       );
 }
 

@@ -8,6 +8,11 @@ class DateTimePickerStyle {
     this.activeDecoration,
     this.inactiveDecoration,
     this.disabledStyle = const TextStyle(color: Colors.grey),
+    @Deprecated(
+      'The centerDecoration property has been replaced by the DateTimePickerCenterWidget class. '
+      'Use DateTimePickerCenterWidget to customize the center area of the picker '
+      'This property will be removed in a future version.',
+    )
     this.centerDecoration = const BoxDecoration(
       color: Colors.white,
       border: Border(
@@ -53,6 +58,12 @@ class DateTimePickerStyle {
   /// Decoration to be used for the widget outside the center of the picker.
   /// Item that shown with this style won't be set for the new value.
   final BoxDecoration? inactiveDecoration;
+
+  @Deprecated(
+    'The centerDecoration property has been replaced by the DateTimePickerCenterWidget class. '
+    'Use DateTimePickerCenterWidget to customize the center area of the picker '
+    'This property will be removed in a future version.',
+  )
 
   /// Decoration for the center area of the picker
   ///

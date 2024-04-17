@@ -9,6 +9,8 @@ import 'package:scroll_datetime_picker/src/widgets/picker_widget.dart';
 part 'entities/date_time_picker_option.dart';
 part 'entities/date_time_picker_style.dart';
 part 'entities/date_time_picker_wheel_option.dart';
+part 'entities/date_time_picker_item_flex.dart';
+part 'entities/date_time_picker_center_widget.dart';
 
 typedef DateTimePickerItemBuilder = Widget Function(
   BuildContext context,
@@ -34,7 +36,9 @@ class ScrollDateTimePicker extends StatefulWidget {
     this.style,
     this.visibleItem = 3,
     this.infiniteScroll = false,
+    this.itemFlex = const DateTimePickerItemFlex(),
     this.wheelOption = const DateTimePickerWheelOption(),
+    this.centerWidget = const DateTimePickerCenterWidget(),
   });
 
   /// Height of every item in the picker
@@ -77,6 +81,28 @@ class ScrollDateTimePicker extends StatefulWidget {
   /// - If null, the appearance of every item will be based on DateTimePickerStyle [style]
   /// - If not null, the appearance of every item will be based return value of this builder
   final DateTimePickerItemBuilder? itemBuilder;
+
+  /// Custom flex width settings for each date and time item in the picker wheel.
+  ///
+  /// This parameter allows you to specify different flex widths for each date and time item,
+  /// such as year, month, day, hour, minute, and second, allowing for a more flexible and
+  /// visually appealing layout.
+  ///
+  /// Defaults to `const DateTimePickerItemFlex()` with all values set to 1.
+  final DateTimePickerItemFlex itemFlex;
+
+  /// Custom center widget settings for each date and time item in the picker wheel.
+  ///
+  /// This parameter allows you to specify custom center widgets for each date and
+  /// time item, such as year, month, day, hour, minute, and second, allowing for
+  /// a more customizable layout. You can set different widgets for each
+  /// date and time type or use a custom builder to customize the appearance
+  /// of the center area in the picker.
+  ///
+  /// - If not set, the center widget will be a default layout with no customization.
+  /// - Use the individual widget parameters in `DateTimePickerCenterWidget` to specify
+  ///   custom widgets for each date and time type.
+  final DateTimePickerCenterWidget centerWidget;
 
   @override
   State<ScrollDateTimePicker> createState() => _ScrollDateTimePickerState();
@@ -161,103 +187,131 @@ class _ScrollDateTimePickerState extends State<ScrollDateTimePicker> {
 
   @override
   Widget build(BuildContext context) {
-    return SizedBox(
-      width: double.infinity,
-      height: widget.itemExtent * widget.visibleItem,
-      child: Stack(
-        alignment: Alignment.center,
-        children: [
-          /* Center Decoration */
-          Container(
-            height: widget.itemExtent,
-            width: double.infinity,
-            decoration: _style.centerDecoration,
-          ),
+    return LayoutBuilder(
+      builder: (context, constraints) => SizedBox(
+        width: constraints.maxWidth,
+        height: widget.itemExtent * widget.visibleItem,
+        child: Stack(
+          alignment: Alignment.center,
+          children: [
+            /* Center Decoration */
+            SizedBox(
+              height: widget.itemExtent,
+              width: constraints.maxWidth,
+              child: LayoutBuilder(
+                builder: (context, constraints) {
+                  final child = widget.centerWidget.hasTypeSpecificCenterWidgets
+                      ? Row(
+                          children: List.generate(
+                            _option.patterns.length,
+                            (colIndex) {
+                              final pattern = _option.patterns[colIndex];
+                              final type = DateTimeType.fromPattern(pattern);
 
-          /* Picker Widget */
-          SizedBox(
-            width: double.infinity,
-            height: widget.itemExtent * widget.visibleItem,
-            child: Row(
-              children: List.generate(
-                _option.patterns.length,
-                (colIndex) {
-                  final pattern = _option.patterns[colIndex];
-                  final type = DateTimeType.fromPattern(pattern);
-
-                  return Expanded(
-                    child: PickerWidget(
-                      itemExtent: widget.itemExtent,
-                      infiniteScroll: widget.infiniteScroll,
-                      controller: _controllers[colIndex],
-                      onChange: (rowIndex) => _onChange(type, rowIndex),
-                      itemCount: _helper.itemCount(type),
-                      wheelOption: widget.wheelOption,
-                      inactiveBuilder: (rowIndex) {
-                        final text = _helper.getText(type, pattern, rowIndex);
-                        final isDisabled = _helper.isTextDisabled(
-                          type,
-                          _activeDate.value,
-                          rowIndex,
-                        );
-
-                        return widget.itemBuilder != null
-                            ? widget.itemBuilder!(
-                                context,
-                                pattern,
-                                text,
-                                false,
-                                isDisabled,
-                              )
-                            : Container(
-                                width: double.infinity,
-                                height: widget.itemExtent,
-                                alignment: Alignment.center,
-                                decoration: _style.inactiveDecoration,
-                                child: Text(
-                                  text,
-                                  style: isDisabled
-                                      ? _style.disabledStyle
-                                      : _style.inactiveStyle,
-                                ),
+                              return Expanded(
+                                flex: widget.itemFlex.getFlex(type),
+                                child:
+                                    widget.centerWidget.getCenterWidget(type) ??
+                                        const SizedBox(),
                               );
-                      },
-                      activeBuilder: (rowIndex) {
-                        final text = _helper.getText(type, pattern, rowIndex);
-                        final isDisabled = _helper.isTextDisabled(
-                          type,
-                          _activeDate.value,
-                          rowIndex,
-                        );
+                            },
+                          ),
+                        )
+                      : const SizedBox();
 
-                        return widget.itemBuilder != null
-                            ? widget.itemBuilder!(
-                                context,
-                                pattern,
-                                text,
-                                true,
-                                isDisabled,
-                              )
-                            : Container(
-                                width: double.infinity,
-                                height: widget.itemExtent,
-                                alignment: Alignment.center,
-                                decoration: _style.activeDecoration,
-                                child: Text(
-                                  text,
-                                  style: isDisabled
-                                      ? _style.disabledStyle
-                                      : _style.activeStyle,
-                                ),
-                              );
-                      },
-                    ),
-                  );
+                  return widget.centerWidget.builder
+                          ?.call(context, constraints, child) ??
+                      child;
                 },
               ),
             ),
-          ),
-        ],
+
+            /* Picker Widget */
+            SizedBox(
+              width: constraints.maxWidth,
+              height: widget.itemExtent * widget.visibleItem,
+              child: Row(
+                children: List.generate(
+                  _option.patterns.length,
+                  (colIndex) {
+                    final pattern = _option.patterns[colIndex];
+                    final type = DateTimeType.fromPattern(pattern);
+
+                    return Expanded(
+                      flex: widget.itemFlex.getFlex(type),
+                      child: PickerWidget(
+                        itemExtent: widget.itemExtent,
+                        infiniteScroll: widget.infiniteScroll,
+                        controller: _controllers[colIndex],
+                        onChange: (rowIndex) => _onChange(type, rowIndex),
+                        itemCount: _helper.itemCount(type),
+                        wheelOption: widget.wheelOption,
+                        inactiveBuilder: (rowIndex) {
+                          final text = _helper.getText(type, pattern, rowIndex);
+                          final isDisabled = _helper.isTextDisabled(
+                            type,
+                            _activeDate.value,
+                            rowIndex,
+                          );
+
+                          return widget.itemBuilder != null
+                              ? widget.itemBuilder!(
+                                  context,
+                                  pattern,
+                                  text,
+                                  false,
+                                  isDisabled,
+                                )
+                              : Container(
+                                  width: constraints.maxWidth,
+                                  height: widget.itemExtent,
+                                  alignment: Alignment.center,
+                                  decoration: _style.inactiveDecoration,
+                                  child: Text(
+                                    text,
+                                    style: isDisabled
+                                        ? _style.disabledStyle
+                                        : _style.inactiveStyle,
+                                  ),
+                                );
+                        },
+                        activeBuilder: (rowIndex) {
+                          final text = _helper.getText(type, pattern, rowIndex);
+                          final isDisabled = _helper.isTextDisabled(
+                            type,
+                            _activeDate.value,
+                            rowIndex,
+                          );
+
+                          return widget.itemBuilder != null
+                              ? widget.itemBuilder!(
+                                  context,
+                                  pattern,
+                                  text,
+                                  true,
+                                  isDisabled,
+                                )
+                              : Container(
+                                  width: constraints.maxWidth,
+                                  height: widget.itemExtent,
+                                  alignment: Alignment.center,
+                                  decoration: _style.activeDecoration,
+                                  child: Text(
+                                    text,
+                                    style: isDisabled
+                                        ? _style.disabledStyle
+                                        : _style.activeStyle,
+                                  ),
+                                );
+                        },
+                      ),
+                    );
+                  },
+                ),
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }

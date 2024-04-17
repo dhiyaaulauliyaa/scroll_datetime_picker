@@ -27,6 +27,7 @@ class _CustomizerScreenState extends State<CustomizerScreen>
   late DateTimePickerStyle style;
   late DateTimePickerOption dateOption;
   late DateTimePickerWheelOption wheelOption;
+  late DateTimePickerCenterWidget centerWidget;
 
   @override
   void initState() {
@@ -65,10 +66,14 @@ class _CustomizerScreenState extends State<CustomizerScreen>
         fontFamily: 'BebasNeue',
         fontStyle: FontStyle.italic,
       ),
-      centerDecoration: BoxDecoration(
-        color: AppColor.secondary,
-        borderRadius: BorderRadius.circular(50),
-        border: Border.all(width: 3),
+    );
+    centerWidget = DateTimePickerCenterWidget(
+      builder: (context, constraints, child) => DecoratedBox(
+        decoration: BoxDecoration(
+          color: AppColor.secondary,
+          borderRadius: BorderRadius.circular(50),
+          border: Border.all(width: 3),
+        ),
       ),
     );
     wheelOption = const DateTimePickerWheelOption(
@@ -185,10 +190,10 @@ class _CustomizerScreenState extends State<CustomizerScreen>
                     onVisibleItemChanged: (val) => setState(
                       () => visibleItem = val.floor(),
                     ),
-                  )
+                  ),
                 ],
               ),
-            )
+            ),
           ],
         ),
       ),

@@ -1,0 +1,238 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+
+<html lang="en">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <title>LCOV - lcov.info - src/entities/lib/src/entities/date_time_picker_center_widget.dart</title>
+  <link rel="stylesheet" type="text/css" href="../../../../../gcov.css">
+</head>
+
+<body>
+
+          <table width="100%" border=0 cellspacing=0 cellpadding=0>
+            <tr><td class="title">LCOV - code coverage report</td></tr>
+            <tr><td class="ruler"><img src="../../../../../glass.png" width=3 height=3 alt=""></td></tr>
+
+            <tr>
+              <td width="100%">
+                <table cellpadding=1 border=0 width="100%">
+          <tr>
+            <td width="10%" class="headerItem">Current view:</td>
+            <td width="10%" class="headerValue"><a href="../../../../../index.html">top level</a> - <a href="index.html">src/entities/lib/src/entities</a> - date_time_picker_center_widget.dart<span style="font-size: 80%;"> (source / <a href="date_time_picker_center_widget.dart.func-c.html">functions</a>)</span></td>
+            <td width="5%"></td>
+            <td width="5%"></td>
+            <td width="5%" class="headerCovTableHead">Coverage</td>
+            <td width="5%" class="headerCovTableHead" title="Covered + Uncovered code">Total</td>
+            <td width="5%" class="headerCovTableHead" title="Exercised code only">Hit</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Test:</td>
+            <td class="headerValue">lcov.info</td>
+            <td></td>
+            <td class="headerItem">Lines:</td>
+            <td class="headerCovTableEntryHi">100.0&nbsp;%</td>
+            <td class="headerCovTableEntry">30</td>
+            <td class="headerCovTableEntry">30</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Test Date:</td>
+            <td class="headerValue">2024-04-17 00:32:05</td>
+            <td></td>
+            <td class="headerItem">Functions:</td>
+            <td class="headerCovTableEntryHi">-</td>
+            <td class="headerCovTableEntry">0</td>
+            <td class="headerCovTableEntry">0</td>
+          </tr>
+                  <tr><td><img src="../../../../../glass.png" width=3 height=3 alt=""></td></tr>
+                </table>
+              </td>
+            </tr>
+
+            <tr><td class="ruler"><img src="../../../../../glass.png" width=3 height=3 alt=""></td></tr>
+          </table>
+
+          <table cellpadding=0 cellspacing=0 border=0>
+            <tr>
+              <td><br></td>
+            </tr>
+            <tr>
+              <td>
+<pre class="sourceHeading">            Line data    Source code</pre>
+<pre class="source">
+<span id="L1"><span class="lineNum">       1</span>              : part of '../scroll_date_time_picker.dart';</span>
+<span id="L2"><span class="lineNum">       2</span>              : </span>
+<span id="L3"><span class="lineNum">       3</span>              : /// Class representing customizable center widgets for a datetime picker.</span>
+<span id="L4"><span class="lineNum">       4</span>              : ///</span>
+<span id="L5"><span class="lineNum">       5</span>              : /// This class allows you to define custom center widgets for different date and time items</span>
+<span id="L6"><span class="lineNum">       6</span>              : /// in a datetime picker. Each widget can be customized independently for various date and</span>
+<span id="L7"><span class="lineNum">       7</span>              : /// time types such as year, month, day, hour, and more.</span>
+<span id="L8"><span class="lineNum">       8</span>              : ///</span>
+<span id="L9"><span class="lineNum">       9</span>              : /// The provided [builder] can be used to customize the layout and fully build the center</span>
+<span id="L10"><span class="lineNum">      10</span>              : /// widget of the scroll datetime picker. In contrast, the individual widget parameters (`year`, `month`, `day`, etc.) are used to draw</span>
+<span id="L11"><span class="lineNum">      11</span>              : /// custom center widgets specifically for their corresponding date or time type.</span>
+<span id="L12"><span class="lineNum">      12</span>              : class DateTimePickerCenterWidget {</span>
+<span id="L13"><span class="lineNum">      13</span>              :   /// Creates an instance of [DateTimePickerCenterWidget].</span>
+<span id="L14"><span class="lineNum">      14</span>              :   ///</span>
+<span id="L15"><span class="lineNum">      15</span>              :   /// - [year]: Custom widget for the center area of the year item.</span>
+<span id="L16"><span class="lineNum">      16</span>              :   /// - [month]: Custom widget for the center area of the month item.</span>
+<span id="L17"><span class="lineNum">      17</span>              :   /// - [day]: Custom widget for the center area of the day item.</span>
+<span id="L18"><span class="lineNum">      18</span>              :   /// - [weekday]: Custom widget for the center area of the weekday item.</span>
+<span id="L19"><span class="lineNum">      19</span>              :   /// - [hour24]: Custom widget for the center area of the 24-hour format hour item.</span>
+<span id="L20"><span class="lineNum">      20</span>              :   /// - [hour12]: Custom widget for the center area of the 12-hour format hour item.</span>
+<span id="L21"><span class="lineNum">      21</span>              :   /// - [minute]: Custom widget for the center area of the minute item.</span>
+<span id="L22"><span class="lineNum">      22</span>              :   /// - [second]: Custom widget for the center area of the second item.</span>
+<span id="L23"><span class="lineNum">      23</span>              :   /// - [amPM]: Custom widget for the center area of the AM/PM item.</span>
+<span id="L24"><span class="lineNum">      24</span>              :   /// - [builder]: A function to fully build the center widget of the scroll</span>
+<span id="L25"><span class="lineNum">      25</span>              :   ///   datetime picker, taking the [BuildContext], [BoxConstraints], and</span>
+<span id="L26"><span class="lineNum">      26</span>              :   ///   [Widget] child as parameters and returning a custom [Widget].</span>
+<span id="L27"><span class="lineNum">      27</span>              :   ///</span>
+<span id="L28"><span class="lineNum">      28</span>              :   ///   The [child] parameter in the function will contain the widgets passed</span>
+<span id="L29"><span class="lineNum">      29</span>              :   ///   to the individual widget parameters (`year`, `month`, `day`, etc.).</span>
+<span id="L30"><span class="lineNum">      30</span>              :   ///   If an individual widget parameter is null, the [child] will be an empty</span>
+<span id="L31"><span class="lineNum">      31</span>              :   ///   widget such as`SizedBox` as the default child widget.</span>
+<span id="L32"><span class="lineNum">      32</span>              :   ///   If all the parameters for the individual center widget for each date/time type,</span>
+<span id="L33"><span class="lineNum">      33</span>              :   ///   then the child will be a SizedBox.</span>
+<span id="L34"><span class="lineNum">      34</span> <span class="tlaGNC tlaBgGNC">          11 :   const DateTimePickerCenterWidget({</span></span>
+<span id="L35"><span class="lineNum">      35</span>              :     this.year,</span>
+<span id="L36"><span class="lineNum">      36</span>              :     this.month,</span>
+<span id="L37"><span class="lineNum">      37</span>              :     this.day,</span>
+<span id="L38"><span class="lineNum">      38</span>              :     this.weekday,</span>
+<span id="L39"><span class="lineNum">      39</span>              :     this.hour24,</span>
+<span id="L40"><span class="lineNum">      40</span>              :     this.hour12,</span>
+<span id="L41"><span class="lineNum">      41</span>              :     this.minute,</span>
+<span id="L42"><span class="lineNum">      42</span>              :     this.second,</span>
+<span id="L43"><span class="lineNum">      43</span>              :     this.amPM,</span>
+<span id="L44"><span class="lineNum">      44</span>              :     this.builder,</span>
+<span id="L45"><span class="lineNum">      45</span>              :   });</span>
+<span id="L46"><span class="lineNum">      46</span>              : </span>
+<span id="L47"><span class="lineNum">      47</span>              :   /// Function to fully build the center widget of the scroll datetime picker.</span>
+<span id="L48"><span class="lineNum">      48</span>              :   ///</span>
+<span id="L49"><span class="lineNum">      49</span>              :   /// This function receives the [BuildContext], [BoxConstraints], and [Widget] child</span>
+<span id="L50"><span class="lineNum">      50</span>              :   /// as parameters and returns a custom [Widget]. This custom center widget will</span>
+<span id="L51"><span class="lineNum">      51</span>              :   /// encompass all date and time types in the datetime picker.</span>
+<span id="L52"><span class="lineNum">      52</span>              :   ///</span>
+<span id="L53"><span class="lineNum">      53</span>              :   /// The [child] parameter will contain the widgets passed to the individual widget</span>
+<span id="L54"><span class="lineNum">      54</span>              :   /// parameters (`year`, `month`, `day`, etc.). If any individual widget parameter is</span>
+<span id="L55"><span class="lineNum">      55</span>              :   /// null, the [child] will be a `SizedBox` as the default child widget.</span>
+<span id="L56"><span class="lineNum">      56</span>              :   ///</span>
+<span id="L57"><span class="lineNum">      57</span>              :   /// If all the parameters for the individual center widget for each date/time type,</span>
+<span id="L58"><span class="lineNum">      58</span>              :   /// then the child will be a SizedBox.</span>
+<span id="L59"><span class="lineNum">      59</span>              :   final Widget Function(</span>
+<span id="L60"><span class="lineNum">      60</span>              :     BuildContext context,</span>
+<span id="L61"><span class="lineNum">      61</span>              :     BoxConstraints constraints,</span>
+<span id="L62"><span class="lineNum">      62</span>              :     Widget child,</span>
+<span id="L63"><span class="lineNum">      63</span>              :   )? builder;</span>
+<span id="L64"><span class="lineNum">      64</span>              : </span>
+<span id="L65"><span class="lineNum">      65</span>              :   /// Custom widget for the center area of the year item.</span>
+<span id="L66"><span class="lineNum">      66</span>              :   ///</span>
+<span id="L67"><span class="lineNum">      67</span>              :   /// This widget will only draw the center area for the year type in the datetime picker.</span>
+<span id="L68"><span class="lineNum">      68</span>              :   final Widget? year;</span>
+<span id="L69"><span class="lineNum">      69</span>              : </span>
+<span id="L70"><span class="lineNum">      70</span>              :   /// Custom widget for the center area of the month item.</span>
+<span id="L71"><span class="lineNum">      71</span>              :   ///</span>
+<span id="L72"><span class="lineNum">      72</span>              :   /// This widget will only draw the center area for the month type in the datetime picker.</span>
+<span id="L73"><span class="lineNum">      73</span>              :   final Widget? month;</span>
+<span id="L74"><span class="lineNum">      74</span>              : </span>
+<span id="L75"><span class="lineNum">      75</span>              :   /// Custom widget for the center area of the day item.</span>
+<span id="L76"><span class="lineNum">      76</span>              :   ///</span>
+<span id="L77"><span class="lineNum">      77</span>              :   /// This widget will only draw the center area for the day type in the datetime picker.</span>
+<span id="L78"><span class="lineNum">      78</span>              :   final Widget? day;</span>
+<span id="L79"><span class="lineNum">      79</span>              : </span>
+<span id="L80"><span class="lineNum">      80</span>              :   /// Custom widget for the center area of the weekday item.</span>
+<span id="L81"><span class="lineNum">      81</span>              :   ///</span>
+<span id="L82"><span class="lineNum">      82</span>              :   /// This widget will only draw the center area for the weekday type in the datetime picker.</span>
+<span id="L83"><span class="lineNum">      83</span>              :   final Widget? weekday;</span>
+<span id="L84"><span class="lineNum">      84</span>              : </span>
+<span id="L85"><span class="lineNum">      85</span>              :   /// Custom widget for the center area of the 24-hour format hour item.</span>
+<span id="L86"><span class="lineNum">      86</span>              :   ///</span>
+<span id="L87"><span class="lineNum">      87</span>              :   /// This widget will only draw the center area for the 24-hour format hour type in the datetime picker.</span>
+<span id="L88"><span class="lineNum">      88</span>              :   final Widget? hour24;</span>
+<span id="L89"><span class="lineNum">      89</span>              : </span>
+<span id="L90"><span class="lineNum">      90</span>              :   /// Custom widget for the center area of the 12-hour format hour item.</span>
+<span id="L91"><span class="lineNum">      91</span>              :   ///</span>
+<span id="L92"><span class="lineNum">      92</span>              :   /// This widget will only draw the center area for the 12-hour format hour type in the datetime picker.</span>
+<span id="L93"><span class="lineNum">      93</span>              :   final Widget? hour12;</span>
+<span id="L94"><span class="lineNum">      94</span>              : </span>
+<span id="L95"><span class="lineNum">      95</span>              :   /// Custom widget for the center area of the minute item.</span>
+<span id="L96"><span class="lineNum">      96</span>              :   ///</span>
+<span id="L97"><span class="lineNum">      97</span>              :   /// This widget will only draw the center area for the minute type in the datetime picker.</span>
+<span id="L98"><span class="lineNum">      98</span>              :   final Widget? minute;</span>
+<span id="L99"><span class="lineNum">      99</span>              : </span>
+<span id="L100"><span class="lineNum">     100</span>              :   /// Custom widget for the center area of the second item.</span>
+<span id="L101"><span class="lineNum">     101</span>              :   ///</span>
+<span id="L102"><span class="lineNum">     102</span>              :   /// This widget will only draw the center area for the second type in the datetime picker.</span>
+<span id="L103"><span class="lineNum">     103</span>              :   final Widget? second;</span>
+<span id="L104"><span class="lineNum">     104</span>              : </span>
+<span id="L105"><span class="lineNum">     105</span>              :   /// Custom widget for the center area of the AM/PM item.</span>
+<span id="L106"><span class="lineNum">     106</span>              :   ///</span>
+<span id="L107"><span class="lineNum">     107</span>              :   /// This widget will only draw the center area for the AM/PM type in the datetime picker.</span>
+<span id="L108"><span class="lineNum">     108</span>              :   final Widget? amPM;</span>
+<span id="L109"><span class="lineNum">     109</span>              : }</span>
+<span id="L110"><span class="lineNum">     110</span>              : </span>
+<span id="L111"><span class="lineNum">     111</span>              : /// Extension providing additional methods for `DateTimePickerCenterWidget`.</span>
+<span id="L112"><span class="lineNum">     112</span>              : ///</span>
+<span id="L113"><span class="lineNum">     113</span>              : /// This extension includes methods for checking the presence of custom center</span>
+<span id="L114"><span class="lineNum">     114</span>              : /// widgets for individual date or time types, as well as retrieving the center</span>
+<span id="L115"><span class="lineNum">     115</span>              : /// widget for a specific date or time type.</span>
+<span id="L116"><span class="lineNum">     116</span>              : extension DateTimePickerCenterWidgetX on DateTimePickerCenterWidget {</span>
+<span id="L117"><span class="lineNum">     117</span>              :   /// Indicates whether any type-specific custom center widget is set.</span>
+<span id="L118"><span class="lineNum">     118</span>              :   ///</span>
+<span id="L119"><span class="lineNum">     119</span>              :   /// This property checks if any of the type-specific custom center widget</span>
+<span id="L120"><span class="lineNum">     120</span>              :   /// parameters (`year`, `month`, `day`, `weekday`, `hour24`, `hour12`,</span>
+<span id="L121"><span class="lineNum">     121</span>              :   /// `minute`, `second`, `amPM`) are set to non-null values.</span>
+<span id="L122"><span class="lineNum">     122</span>              :   ///</span>
+<span id="L123"><span class="lineNum">     123</span>              :   /// - Returns `true` if any type-specific custom center widget is set;</span>
+<span id="L124"><span class="lineNum">     124</span>              :   ///   otherwise, returns `false`.</span>
+<span id="L125"><span class="lineNum">     125</span> <span class="tlaGNC">           2 :   bool get hasTypeSpecificCenterWidgets =&gt;</span></span>
+<span id="L126"><span class="lineNum">     126</span> <span class="tlaGNC">           2 :       year != null ||</span></span>
+<span id="L127"><span class="lineNum">     127</span> <span class="tlaGNC">           1 :       month != null ||</span></span>
+<span id="L128"><span class="lineNum">     128</span> <span class="tlaGNC">           1 :       day != null ||</span></span>
+<span id="L129"><span class="lineNum">     129</span> <span class="tlaGNC">           1 :       weekday != null ||</span></span>
+<span id="L130"><span class="lineNum">     130</span> <span class="tlaGNC">           1 :       hour24 != null ||</span></span>
+<span id="L131"><span class="lineNum">     131</span> <span class="tlaGNC">           1 :       hour12 != null ||</span></span>
+<span id="L132"><span class="lineNum">     132</span> <span class="tlaGNC">           1 :       minute != null ||</span></span>
+<span id="L133"><span class="lineNum">     133</span> <span class="tlaGNC">           1 :       second != null ||</span></span>
+<span id="L134"><span class="lineNum">     134</span> <span class="tlaGNC">           1 :       amPM != null;</span></span>
+<span id="L135"><span class="lineNum">     135</span>              : </span>
+<span id="L136"><span class="lineNum">     136</span>              :   /// Retrieves the center widget for a specific [DateTimeType].</span>
+<span id="L137"><span class="lineNum">     137</span>              :   ///</span>
+<span id="L138"><span class="lineNum">     138</span>              :   /// - [type]: The date or time type for which to get the center widget.</span>
+<span id="L139"><span class="lineNum">     139</span>              :   /// - Returns the custom center widget for the specified date or time type, or `null` if not set.</span>
+<span id="L140"><span class="lineNum">     140</span> <span class="tlaGNC">           2 :   Widget? getCenterWidget(DateTimeType type) {</span></span>
+<span id="L141"><span class="lineNum">     141</span>              :     switch (type) {</span>
+<span id="L142"><span class="lineNum">     142</span> <span class="tlaGNC">           2 :       case DateTimeType.year:</span></span>
+<span id="L143"><span class="lineNum">     143</span> <span class="tlaGNC">           2 :         return year;</span></span>
+<span id="L144"><span class="lineNum">     144</span> <span class="tlaGNC">           2 :       case DateTimeType.month:</span></span>
+<span id="L145"><span class="lineNum">     145</span> <span class="tlaGNC">           2 :         return month;</span></span>
+<span id="L146"><span class="lineNum">     146</span> <span class="tlaGNC">           2 :       case DateTimeType.day:</span></span>
+<span id="L147"><span class="lineNum">     147</span> <span class="tlaGNC">           2 :         return day;</span></span>
+<span id="L148"><span class="lineNum">     148</span> <span class="tlaGNC">           2 :       case DateTimeType.weekday:</span></span>
+<span id="L149"><span class="lineNum">     149</span> <span class="tlaGNC">           1 :         return weekday;</span></span>
+<span id="L150"><span class="lineNum">     150</span> <span class="tlaGNC">           2 :       case DateTimeType.hour24:</span></span>
+<span id="L151"><span class="lineNum">     151</span> <span class="tlaGNC">           2 :         return hour24;</span></span>
+<span id="L152"><span class="lineNum">     152</span> <span class="tlaGNC">           2 :       case DateTimeType.hour12:</span></span>
+<span id="L153"><span class="lineNum">     153</span> <span class="tlaGNC">           1 :         return hour12;</span></span>
+<span id="L154"><span class="lineNum">     154</span> <span class="tlaGNC">           2 :       case DateTimeType.minute:</span></span>
+<span id="L155"><span class="lineNum">     155</span> <span class="tlaGNC">           2 :         return minute;</span></span>
+<span id="L156"><span class="lineNum">     156</span> <span class="tlaGNC">           2 :       case DateTimeType.second:</span></span>
+<span id="L157"><span class="lineNum">     157</span> <span class="tlaGNC">           2 :         return second;</span></span>
+<span id="L158"><span class="lineNum">     158</span> <span class="tlaGNC">           1 :       case DateTimeType.amPM:</span></span>
+<span id="L159"><span class="lineNum">     159</span> <span class="tlaGNC">           1 :         return amPM;</span></span>
+<span id="L160"><span class="lineNum">     160</span>              :     }</span>
+<span id="L161"><span class="lineNum">     161</span>              :   }</span>
+<span id="L162"><span class="lineNum">     162</span>              : }</span>
+        </pre>
+              </td>
+            </tr>
+          </table>
+          <br>
+
+          <table width="100%" border=0 cellspacing=0 cellpadding=0>
+            <tr><td class="ruler"><img src="../../../../../glass.png" width=3 height=3 alt=""></td></tr>
+            <tr><td class="versionInfo">Generated by: <a href="https://github.com//linux-test-project/lcov" target="_parent">LCOV version 2.0-1</a></td></tr>
+          </table>
+          <br>
+
+</body>
+</html>
