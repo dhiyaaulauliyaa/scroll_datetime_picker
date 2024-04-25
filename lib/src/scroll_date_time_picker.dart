@@ -36,6 +36,7 @@ class ScrollDateTimePicker extends StatefulWidget {
     this.style,
     this.visibleItem = 3,
     this.infiniteScroll = false,
+    this.markOutOfRangeDateInvalid = true,
     this.itemFlex = const DateTimePickerItemFlex(),
     this.wheelOption = const DateTimePickerWheelOption(),
     this.centerWidget = const DateTimePickerCenterWidget(),
@@ -103,6 +104,14 @@ class ScrollDateTimePicker extends StatefulWidget {
   /// - Use the individual widget parameters in `DateTimePickerCenterWidget` to specify
   ///   custom widgets for each date and time type.
   final DateTimePickerCenterWidget centerWidget;
+
+  /// Whether to mark out-of-range dates as invalid.
+  ///
+  /// If set to true, dates before the minimum date and after the maximum date
+  /// will be considered invalid selections, and the user will not be able
+  /// to choose them. If set to false, the user can still select out-of-range
+  /// dates.
+  final bool markOutOfRangeDateInvalid;
 
   @override
   State<ScrollDateTimePicker> createState() => _ScrollDateTimePickerState();
@@ -369,8 +378,10 @@ class _ScrollDateTimePickerState extends State<ScrollDateTimePicker> {
       activeDate: _activeDate.value,
     );
 
-    if (newDate.isAfter(_option.maxDate)) newDate = _activeDate.value;
-    if (newDate.isBefore(_option.minDate)) newDate = _activeDate.value;
+    if (widget.markOutOfRangeDateInvalid) {
+      if (newDate.isAfter(_option.maxDate)) newDate = _activeDate.value;
+      if (newDate.isBefore(_option.minDate)) newDate = _activeDate.value;
+    }
 
     /* Set new date */
     _activeDate.value = newDate;
