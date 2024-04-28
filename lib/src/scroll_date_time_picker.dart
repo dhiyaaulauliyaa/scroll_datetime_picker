@@ -382,6 +382,7 @@ class _ScrollDateTimePickerState extends State<ScrollDateTimePicker> {
       if (newDate.isAfter(_option.maxDate)) newDate = _activeDate.value;
       if (newDate.isBefore(_option.minDate)) newDate = _activeDate.value;
     }
+    if (newDate != _activeDate.value) setState(() {});
 
     /* Set new date */
     _activeDate.value = newDate;
