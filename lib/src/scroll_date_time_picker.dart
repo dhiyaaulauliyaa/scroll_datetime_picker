@@ -372,6 +372,8 @@ class _ScrollDateTimePickerState extends State<ScrollDateTimePicker> {
   }
 
   Future<void> _onChange(DateTimeType type, int rowIndex) async {
+    if (!mounted) return;
+
     var newDate = _helper.getDateFromRowIndex(
       type: type,
       rowIndex: rowIndex,
@@ -382,7 +384,9 @@ class _ScrollDateTimePickerState extends State<ScrollDateTimePicker> {
       if (newDate.isAfter(_option.maxDate)) newDate = _activeDate.value;
       if (newDate.isBefore(_option.minDate)) newDate = _activeDate.value;
     }
-    if (newDate != _activeDate.value) setState(() {});
+
+    /* Update state on date changed */
+    if (newDate != _activeDate.value && mounted) setState(() {});
 
     /* Set new date */
     _activeDate.value = newDate;
@@ -395,7 +399,7 @@ class _ScrollDateTimePickerState extends State<ScrollDateTimePicker> {
       await _recheckPosition(DateTimeType.month, newDate);
       await _recheckPosition(DateTimeType.day, newDate);
       await _recheckPosition(DateTimeType.weekday, newDate);
-      isRecheckingPosition.value = false;
+      if (mounted) isRecheckingPosition.value = false;
     }
 
     return;
@@ -437,6 +441,7 @@ class _ScrollDateTimePickerState extends State<ScrollDateTimePicker> {
     required int itemCount,
     required int targetPosition,
   }) async {
+    if (!mounted) return;
     if (controller.hasClients) {
       final scrollPosition =
           (controller.offset / widget.itemExtent).floor() % itemCount + 1;
