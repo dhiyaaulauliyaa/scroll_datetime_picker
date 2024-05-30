@@ -1,3 +1,6 @@
+## 0.1.2
+- **Bug Fix:** Resolved issue where `setState` is called after widget is unmounted. 
+
 ## 0.1.1
 
 - **New Feature:** Added option `markOutOfRangeDateInvalid` to enable/disable marking out-of-range dates as invalid selections. When enabled, users cannot select dates outside the specified range.
