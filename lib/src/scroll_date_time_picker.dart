@@ -8,12 +8,12 @@ import 'package:scroll_datetime_picker/src/entities/date_time_picker_helper.dart
 import 'package:scroll_datetime_picker/src/entities/enums.dart';
 import 'package:scroll_datetime_picker/src/widgets/picker_widget.dart';
 
+part 'entities/date_time_picker_center_widget.dart';
+part 'entities/date_time_picker_controller.dart';
+part 'entities/date_time_picker_item_flex.dart';
 part 'entities/date_time_picker_option.dart';
 part 'entities/date_time_picker_style.dart';
 part 'entities/date_time_picker_wheel_option.dart';
-part 'entities/date_time_picker_item_flex.dart';
-part 'entities/date_time_picker_center_widget.dart';
-part 'entities/date_time_picker_controller.dart';
 
 typedef DateTimePickerItemBuilder = Widget Function(
   BuildContext context,
@@ -374,7 +374,7 @@ class _ScrollDateTimePickerState extends State<ScrollDateTimePicker> {
           extent = targetDate.weekday - 1;
           break;
         case DateTimeType.hour24:
-          extent = targetDate.hour - 1;
+          extent = activeDate.hour.toDouble();
           break;
         case DateTimeType.hour12:
           extent = _helper.convertToHour12(targetDate.hour) - 1;
