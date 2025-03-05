@@ -127,7 +127,7 @@ class ScrollDateTimePicker extends StatefulWidget {
 }
 
 class _ScrollDateTimePickerState extends State<ScrollDateTimePicker> {
-  late final ValueNotifier<DateTime> _activeDate;
+  late DateTime _activeDate;
   late List<ScrollController> _controllers;
 
   late DateTimePickerStyle _style;
@@ -144,7 +144,7 @@ class _ScrollDateTimePickerState extends State<ScrollDateTimePicker> {
     _isRecheckingPosition = ValueNotifier(false);
 
     _option = widget.dateOption;
-    _activeDate = ValueNotifier<DateTime>(_option.getInitialDate);
+    _activeDate = _option.getInitialDate;
     _helper = DateTimePickerHelper(_option);
     _style = widget.style ?? DateTimePickerStyle();
     _controllers = List.generate(
@@ -204,7 +204,6 @@ class _ScrollDateTimePickerState extends State<ScrollDateTimePicker> {
   @override
   void dispose() {
     _isRecheckingPosition.dispose();
-    _activeDate.dispose();
 
     for (final ctrl in _controllers) {
       ctrl.dispose();
@@ -278,7 +277,7 @@ class _ScrollDateTimePickerState extends State<ScrollDateTimePicker> {
                           final text = _helper.getText(type, pattern, rowIndex);
                           final isDisabled = _helper.isTextDisabled(
                             type,
-                            _activeDate.value,
+                            _activeDate,
                             rowIndex,
                           );
 
@@ -307,7 +306,7 @@ class _ScrollDateTimePickerState extends State<ScrollDateTimePicker> {
                           final text = _helper.getText(type, pattern, rowIndex);
                           final isDisabled = _helper.isTextDisabled(
                             type,
-                            _activeDate.value,
+                            _activeDate,
                             rowIndex,
                           );
 
@@ -346,13 +345,13 @@ class _ScrollDateTimePickerState extends State<ScrollDateTimePicker> {
 
   Future<void> _driveDatePosition(DateTime targetDate) async {
     /* 1. If target date already same, return */
-    if (targetDate == _activeDate.value) return;
+    if (targetDate == _activeDate) return;
 
     /* 2. If target date out of range, return */
     if (_isDateOutOfRange(targetDate)) throw Exception('Date is Out of Range');
 
     /* 3. Ensure the active date is updated before driving the scroll position */
-    _activeDate.value = targetDate;
+    if (mounted) setState(() => _activeDate = targetDate);
 
     /* 4. Start drive date position */
     for (var i = 0; i < _option.dateTimeTypes.length; i++) {
@@ -419,22 +418,22 @@ class _ScrollDateTimePickerState extends State<ScrollDateTimePicker> {
     var newDate = _helper.getDateFromRowIndex(
       type: type,
       rowIndex: rowIndex,
-      activeDate: _activeDate.value,
+      activeDate: _activeDate,
     );
 
     /* 2. If date out of range, change target date to be existing date */
     if (widget.markOutOfRangeDateInvalid) {
-      if (_isDateOutOfRange(newDate)) newDate = _activeDate.value;
+      if (_isDateOutOfRange(newDate)) newDate = _activeDate;
     }
 
-    /* 3. Refresh state to update widget styling */
-    if (newDate != _activeDate.value && mounted) setState(() {});
+    /* 3. Refresh widget state if date changed */
+    if (newDate != _activeDate && mounted) {
+      _activeDate = newDate;
+      widget.onChange?.call(newDate);
+      setState(() {});
+    }
 
-    /* 4. Set the new date */
-    _activeDate.value = newDate;
-    widget.onChange?.call(newDate);
-
-    /* 5. Recheck scroll positions, should be stopped at correct position */
+    /* 4. Recheck scroll positions, should be stopped at correct position */
     if (!_isRecheckingPosition.value) {
       _isRecheckingPosition.value = true;
       await _recheckPosition(DateTimeType.year, newDate);
