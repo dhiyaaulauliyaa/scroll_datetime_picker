@@ -162,7 +162,7 @@ class _ScrollDateTimePickerState extends State<ScrollDateTimePicker> {
 
     /* Init date position */
     SchedulerBinding.instance.addPostFrameCallback(
-      (_) => _driveDatePosition(_option.getInitialDate),
+      (_) => _driveDatePosition(_option.getInitialDate, force: true),
     );
   }
 
@@ -343,9 +343,12 @@ class _ScrollDateTimePickerState extends State<ScrollDateTimePicker> {
     );
   }
 
-  Future<void> _driveDatePosition(DateTime targetDate) async {
+  Future<void> _driveDatePosition(
+    DateTime targetDate, {
+    bool force = false,
+  }) async {
     /* 1. If target date already same, return */
-    if (targetDate == _activeDate) return;
+    if (targetDate == _activeDate && !force) return;
 
     /* 2. If target date out of range, return */
     if (_isDateOutOfRange(targetDate)) throw Exception('Date is Out of Range');
