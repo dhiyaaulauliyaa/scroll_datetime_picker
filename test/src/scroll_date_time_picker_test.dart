@@ -3,6 +3,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:intl/intl.dart';
 import 'package:scroll_datetime_picker/src/scroll_date_time_picker.dart';
 import 'package:scroll_datetime_picker/src/widgets/picker_widget.dart';
+import 'package:scroll_datetime_picker/src/widgets/scroll_type_listener.dart';
 
 void main() {
   final testValues = [
@@ -288,23 +289,23 @@ void main() {
     'ScrollDateTimePicker mark invalid date properly based on the markOutOfRangeDateInvalid',
     () {
       testWidgets(
-        'should return to initial date when date chosen is out of range and markOutOfRangeDateInvalid is true ',
+        'should not change date when date chosen is out of range and markOutOfRangeDateInvalid is true ',
         (tester) async {
           final initialDate = DateTime(2023, 2);
           final minDate = DateTime(2023);
           final maxDate = DateTime(2023, 3);
           const scrollSteps = 5;
 
-          late DateTime selectedDate;
+          var selectedDate = initialDate;
 
           await tester.pumpWidget(
             MaterialApp(
               home: _TestPage(
-                format: DateFormat('MMMyyyy'),
+                format: DateFormat('MMMdd'),
                 // ignore: avoid_redundant_argument_values
                 markOutOfRangeDateInvalid: true,
                 dateOption: DateTimePickerOption(
-                  dateFormat: DateFormat('MMyyyy'),
+                  dateFormat: DateFormat('MMMdd'),
                   minDate: minDate,
                   maxDate: maxDate,
                   initialDate: initialDate,
@@ -315,39 +316,71 @@ void main() {
           );
           await tester.pumpAndSettle(const Duration(milliseconds: 500));
 
-          // Drag down for five item
+          // Verify the initial date is set correctly
+          expect(selectedDate, initialDate);
+
+          // Calculate the required scroll distance
+          const itemHeight = 54.0;
+          const scrollDistance = (itemHeight * scrollSteps) + 10;
+
+          // Ensure the widget has time to update
+          await tester.pumpAndSettle(const Duration(milliseconds: 500));
+
+          // Find widget to scroll
+          final listWheelScrollViews = find.byWidgetPredicate((widget) {
+            if (widget is! ListWheelScrollView) return false;
+
+            // The scrollable widget should wrapped by ScrollTypeListener
+            final finder = find.ancestor(
+              of: find.byWidget(widget),
+              matching: find.byType(ScrollTypeListener),
+            );
+
+            // Return true if no IgnorePointer ancestor exists
+            return finder.evaluate().isNotEmpty;
+          }).evaluate();
+          final widgetToScroll = find.byWidget(
+            listWheelScrollViews.first.widget, // Month is the first widget
+          );
+
+          // Perform drag and wait for it to complete
           await tester.drag(
-            find.byType(ListWheelScrollView).first,
-            const Offset(0, -54.0 * scrollSteps + 10),
+            widgetToScroll,
+            const Offset(0, -scrollDistance),
             warnIfMissed: false,
           );
-          await tester.pumpAndSettle(const Duration(milliseconds: 200));
 
-          // Make sure the datetime selected is not exceed the date range
-          // when markOutOfRangeDateInvalid is true
-          expect(selectedDate.year, initialDate.year);
-          expect(selectedDate.month, initialDate.month);
+          // Ensure animations are settled
+          await tester.pumpAndSettle(const Duration(milliseconds: 750));
+
+          // Verify the selected date not changed
+          expect(
+            selectedDate,
+            initialDate,
+            reason: 'The selected date should be the initial date '
+                '($initialDate) since the target date is out of range ',
+          );
+          await tester.pumpAndSettle();
         },
       );
 
       testWidgets(
-        'should keep the selected date even when date chosen is out of range and markOutOfRangeDateInvalid is false ',
+        'should keep the new date when date chosen is out of range and markOutOfRangeDateInvalid is false',
         (tester) async {
           final initialDate = DateTime(2023, 2);
           final minDate = DateTime(2023);
           final maxDate = DateTime(2023, 3);
           const scrollSteps = 5;
 
-          late DateTime selectedDate;
+          var selectedDate = initialDate;
 
           await tester.pumpWidget(
             MaterialApp(
               home: _TestPage(
-                format: DateFormat('MMMyyyy'),
-                // ignore: avoid_redundant_argument_values
+                format: DateFormat('MMMdd'),
                 markOutOfRangeDateInvalid: false,
                 dateOption: DateTimePickerOption(
-                  dateFormat: DateFormat('MMyyyy'),
+                  dateFormat: DateFormat('MMMdd'),
                   minDate: minDate,
                   maxDate: maxDate,
                   initialDate: initialDate,
@@ -358,18 +391,54 @@ void main() {
           );
           await tester.pumpAndSettle(const Duration(milliseconds: 500));
 
-          // Drag down for five item
+          // Verify the initial date is set correctly
+          expect(selectedDate, initialDate);
+
+          // Calculate the required scroll distance
+          const itemHeight = 54.0;
+          const scrollDistance = (itemHeight * scrollSteps) + 10;
+
+          // Ensure the widget has time to update
+          await tester.pumpAndSettle(const Duration(milliseconds: 500));
+
+          // Find widget to scroll
+          final listWheelScrollViews = find.byWidgetPredicate((widget) {
+            if (widget is! ListWheelScrollView) return false;
+
+            // The scrollable widget should wrapped by ScrollTypeListener
+            final finder = find.ancestor(
+              of: find.byWidget(widget),
+              matching: find.byType(ScrollTypeListener),
+            );
+
+            // Return true if no IgnorePointer ancestor exists
+            return finder.evaluate().isNotEmpty;
+          }).evaluate();
+          final widgetToScroll = find.byWidget(
+            listWheelScrollViews.first.widget, // Month is the first widget
+          );
+
+          // Perform drag and wait for it to complete
           await tester.drag(
-            find.byType(ListWheelScrollView).first,
-            const Offset(0, -54.0 * scrollSteps + 10),
+            widgetToScroll,
+            const Offset(0, -scrollDistance),
             warnIfMissed: false,
           );
-          await tester.pumpAndSettle(const Duration(milliseconds: 200));
 
-          // Make sure the datetime selected is not exceed the date range
-          // when markOutOfRangeDateInvalid is true
-          expect(selectedDate.year, initialDate.year);
-          expect(selectedDate.month, initialDate.month + scrollSteps);
+          // Ensure animations are settled
+          await tester.pumpAndSettle();
+
+          // Verify the selected date has changed
+          final expectedDate = initialDate.copyWith(
+            month: initialDate.month + scrollSteps,
+          );
+          expect(
+            selectedDate,
+            expectedDate,
+            reason: 'The selected date should have been '
+                'updated to $expectedDate',
+          );
+          await tester.pumpAndSettle();
         },
       );
     },
