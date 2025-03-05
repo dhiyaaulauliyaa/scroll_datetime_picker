@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:intl/date_symbol_data_local.dart';
@@ -11,6 +13,7 @@ part 'entities/date_time_picker_style.dart';
 part 'entities/date_time_picker_wheel_option.dart';
 part 'entities/date_time_picker_item_flex.dart';
 part 'entities/date_time_picker_center_widget.dart';
+part 'entities/date_time_picker_controller.dart';
 
 typedef DateTimePickerItemBuilder = Widget Function(
   BuildContext context,
@@ -32,6 +35,7 @@ class ScrollDateTimePicker extends StatefulWidget {
     required this.itemExtent,
     required this.dateOption,
     required this.onChange,
+    this.controller,
     this.itemBuilder,
     this.style,
     this.visibleItem = 3,
@@ -41,6 +45,11 @@ class ScrollDateTimePicker extends StatefulWidget {
     this.wheelOption = const DateTimePickerWheelOption(),
     this.centerWidget = const DateTimePickerCenterWidget(),
   });
+
+  /// Optional controller for managing the picker's state.
+  ///
+  /// This can be used to programmatically update the selected date/time.
+  final DateTimePickerController? controller;
 
   /// Height of every item in the picker
   ///
@@ -125,14 +134,14 @@ class _ScrollDateTimePickerState extends State<ScrollDateTimePicker> {
   late DateTimePickerOption _option;
   late DateTimePickerHelper _helper;
 
-  late final ValueNotifier<bool> isRecheckingPosition;
+  late final ValueNotifier<bool> _isRecheckingPosition;
 
   @override
   void initState() {
     super.initState();
 
     initializeDateFormatting(widget.dateOption.locale.languageCode);
-    isRecheckingPosition = ValueNotifier(false);
+    _isRecheckingPosition = ValueNotifier(false);
 
     _option = widget.dateOption;
     _activeDate = ValueNotifier<DateTime>(_option.getInitialDate);
@@ -143,9 +152,18 @@ class _ScrollDateTimePickerState extends State<ScrollDateTimePicker> {
       (index) => ScrollController(),
     );
 
-    SchedulerBinding.instance.addPostFrameCallback((_) {
-      _initDate();
-    });
+    /* Init controller */
+    if (widget.controller != null) {
+      widget.controller?.addListener(() async {
+        if (widget.controller?.value.activeDate == null) return;
+        return _driveDatePosition(widget.controller!.value.activeDate!);
+      });
+    }
+
+    /* Init date position */
+    SchedulerBinding.instance.addPostFrameCallback(
+      (_) => _driveDatePosition(_option.getInitialDate),
+    );
   }
 
   @override
@@ -185,8 +203,9 @@ class _ScrollDateTimePickerState extends State<ScrollDateTimePicker> {
 
   @override
   void dispose() {
-    isRecheckingPosition.dispose();
+    _isRecheckingPosition.dispose();
     _activeDate.dispose();
+
     for (final ctrl in _controllers) {
       ctrl.dispose();
     }
@@ -325,81 +344,104 @@ class _ScrollDateTimePickerState extends State<ScrollDateTimePicker> {
     );
   }
 
-  void _initDate() {
-    final activeDate = _activeDate.value;
+  Future<void> _driveDatePosition(DateTime targetDate) async {
+    /* 1. If target date already same, return */
+    if (targetDate == _activeDate.value) return;
 
+    /* 2. If target date out of range, return */
+    if (_isDateOutOfRange(targetDate)) throw Exception('Date is Out of Range');
+
+    /* 3. Ensure the active date is updated before driving the scroll position */
+    _activeDate.value = targetDate;
+
+    /* 4. Start drive date position */
     for (var i = 0; i < _option.dateTimeTypes.length; i++) {
       late double extent;
 
       switch (_option.dateTimeTypes[i]) {
         case DateTimeType.year:
-          extent = _helper.years.indexOf(activeDate.year).toDouble();
+          extent = _helper.years.indexOf(targetDate.year).toDouble();
           break;
         case DateTimeType.month:
-          extent = activeDate.month - 1;
+          extent = targetDate.month - 1;
           break;
         case DateTimeType.day:
-          extent = activeDate.day - 1;
+          extent = targetDate.day - 1;
           break;
         case DateTimeType.weekday:
-          extent = activeDate.weekday - 1;
+          extent = targetDate.weekday - 1;
           break;
         case DateTimeType.hour24:
-          extent = activeDate.hour - 1;
+          extent = targetDate.hour - 1;
           break;
         case DateTimeType.hour12:
-          extent = _helper.convertToHour12(activeDate.hour) - 1;
+          extent = _helper.convertToHour12(targetDate.hour) - 1;
           break;
         case DateTimeType.minute:
-          extent = activeDate.minute.toDouble();
+          extent = targetDate.minute.toDouble();
           break;
         case DateTimeType.second:
-          extent = activeDate.second.toDouble();
+          extent = targetDate.second.toDouble();
           break;
         case DateTimeType.amPM:
-          extent = _helper.isAM(activeDate.hour) ? 0 : 1;
+          extent = _helper.isAM(targetDate.hour) ? 0 : 1;
           break;
       }
 
-      if (_controllers[i].hasClients) {
+      /* 4.1. If controller doesn't attached to any client, return */
+      if (!_controllers[i].hasClients) continue;
+
+      /* 4.2. Animate to position */
+      unawaited(
         _controllers[i].animateTo(
           widget.itemExtent * extent,
-          duration: const Duration(milliseconds: 100),
+          duration: const Duration(milliseconds: 500),
           curve: Curves.easeOut,
-        );
-      }
+        ),
+      );
+
+      /* 4.3. Await to prevent race conditions */
+      await Future.microtask(() => null);
     }
+  }
+
+  bool _isDateOutOfRange(DateTime date) {
+    if (date.isAfter(_option.maxDate)) return true;
+    if (date.isBefore(_option.minDate)) return true;
+
+    return false;
   }
 
   Future<void> _onChange(DateTimeType type, int rowIndex) async {
     if (!mounted) return;
 
+    /* 1. Calculate new date based on rowIndex */
     var newDate = _helper.getDateFromRowIndex(
       type: type,
       rowIndex: rowIndex,
       activeDate: _activeDate.value,
     );
 
+    /* 2. If date out of range, change target date to be existing date */
     if (widget.markOutOfRangeDateInvalid) {
-      if (newDate.isAfter(_option.maxDate)) newDate = _activeDate.value;
-      if (newDate.isBefore(_option.minDate)) newDate = _activeDate.value;
+      if (_isDateOutOfRange(newDate)) newDate = _activeDate.value;
     }
 
-    /* Update state on date changed */
+    /* 3. Refresh state to update widget styling */
     if (newDate != _activeDate.value && mounted) setState(() {});
 
-    /* Set new date */
+    /* 4. Set the new date */
     _activeDate.value = newDate;
     widget.onChange?.call(newDate);
 
-    /* Recheck positions */
-    if (!isRecheckingPosition.value) {
-      isRecheckingPosition.value = true;
+    /* 5. Recheck scroll positions, should be stopped at correct position */
+    if (!_isRecheckingPosition.value) {
+      _isRecheckingPosition.value = true;
       await _recheckPosition(DateTimeType.year, newDate);
       await _recheckPosition(DateTimeType.month, newDate);
       await _recheckPosition(DateTimeType.day, newDate);
       await _recheckPosition(DateTimeType.weekday, newDate);
-      if (mounted) isRecheckingPosition.value = false;
+      if (mounted) _isRecheckingPosition.value = false;
     }
 
     return;
@@ -442,26 +484,32 @@ class _ScrollDateTimePickerState extends State<ScrollDateTimePicker> {
     required int targetPosition,
   }) async {
     if (!mounted) return;
-    if (controller.hasClients) {
-      final scrollPosition =
-          (controller.offset / widget.itemExtent).floor() % itemCount + 1;
 
-      if (targetPosition != scrollPosition) {
-        final difference = scrollPosition - targetPosition;
-        final endOffset = controller.offset - (difference * widget.itemExtent);
+    /* 1. If doesn't have controller, return */
+    if (!controller.hasClients) return;
 
-        if (!controller.position.isScrollingNotifier.value) {
-          await Future.delayed(
-            const Duration(milliseconds: 100),
-            () => controller.animateTo(
-              endOffset,
-              duration: const Duration(milliseconds: 500),
-              curve: Curves.bounceOut,
-            ),
-          );
-        }
-      }
-    }
+    /* 2. If existing postition already same with target, return */
+    final scrollPosition =
+        (controller.offset / widget.itemExtent).floor() % itemCount + 1;
+    if (targetPosition == scrollPosition) return;
+
+    /* 3. If still scrolling, return */
+    if (controller.position.isScrollingNotifier.value) return;
+
+    /* 4. Calculate the difference */
+    final difference = scrollPosition - targetPosition;
+    final endOffset = controller.offset - (difference * widget.itemExtent);
+
+    /* 5. Start fixing position */
+
+    await Future.delayed(
+      const Duration(milliseconds: 100),
+      () => controller.animateTo(
+        endOffset,
+        duration: const Duration(milliseconds: 500),
+        curve: Curves.bounceOut,
+      ),
+    );
 
     return;
   }
