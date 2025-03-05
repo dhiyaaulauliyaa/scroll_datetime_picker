@@ -32,7 +32,7 @@ class DateTimePickerController extends ValueNotifier<DateTimePickerData> {
   /// - [Exception] if the provided [datetime] is outside the allowed range
   ///   (as defined by [DateTimePickerOption.minDate] and [DateTimePickerOption.maxDate]).
   void changeDateTime(DateTime datetime) {
+    if (value.activeDate == datetime) return;
     value = value.copyWith(activeDate: datetime);
-    notifyListeners();
   }
 }
