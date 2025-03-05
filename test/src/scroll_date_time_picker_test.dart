@@ -1,8 +1,11 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:intl/intl.dart';
 import 'package:scroll_datetime_picker/src/scroll_date_time_picker.dart';
 import 'package:scroll_datetime_picker/src/widgets/picker_widget.dart';
+import 'package:scroll_datetime_picker/src/widgets/scroll_type_listener.dart';
 
 void main() {
   final testValues = [
@@ -288,23 +291,23 @@ void main() {
     'ScrollDateTimePicker mark invalid date properly based on the markOutOfRangeDateInvalid',
     () {
       testWidgets(
-        'should return to initial date when date chosen is out of range and markOutOfRangeDateInvalid is true ',
+        'should not change date when date chosen is out of range and markOutOfRangeDateInvalid is true ',
         (tester) async {
           final initialDate = DateTime(2023, 2);
           final minDate = DateTime(2023);
           final maxDate = DateTime(2023, 3);
           const scrollSteps = 5;
 
-          late DateTime selectedDate;
+          var selectedDate = initialDate;
 
           await tester.pumpWidget(
             MaterialApp(
               home: _TestPage(
-                format: DateFormat('MMMyyyy'),
+                format: DateFormat('MMMdd'),
                 // ignore: avoid_redundant_argument_values
                 markOutOfRangeDateInvalid: true,
                 dateOption: DateTimePickerOption(
-                  dateFormat: DateFormat('MMyyyy'),
+                  dateFormat: DateFormat('MMMdd'),
                   minDate: minDate,
                   maxDate: maxDate,
                   initialDate: initialDate,
@@ -315,39 +318,71 @@ void main() {
           );
           await tester.pumpAndSettle(const Duration(milliseconds: 500));
 
-          // Drag down for five item
+          // Verify the initial date is set correctly
+          expect(selectedDate, initialDate);
+
+          // Calculate the required scroll distance
+          const itemHeight = 54.0;
+          const scrollDistance = (itemHeight * scrollSteps) + 10;
+
+          // Ensure the widget has time to update
+          await tester.pumpAndSettle(const Duration(milliseconds: 500));
+
+          // Find widget to scroll
+          final listWheelScrollViews = find.byWidgetPredicate((widget) {
+            if (widget is! ListWheelScrollView) return false;
+
+            // The scrollable widget should wrapped by ScrollTypeListener
+            final finder = find.ancestor(
+              of: find.byWidget(widget),
+              matching: find.byType(ScrollTypeListener),
+            );
+
+            // Return true if no IgnorePointer ancestor exists
+            return finder.evaluate().isNotEmpty;
+          }).evaluate();
+          final widgetToScroll = find.byWidget(
+            listWheelScrollViews.first.widget, // Month is the first widget
+          );
+
+          // Perform drag and wait for it to complete
           await tester.drag(
-            find.byType(ListWheelScrollView).first,
-            const Offset(0, -54.0 * scrollSteps + 10),
+            widgetToScroll,
+            const Offset(0, -scrollDistance),
             warnIfMissed: false,
           );
-          await tester.pumpAndSettle(const Duration(milliseconds: 200));
 
-          // Make sure the datetime selected is not exceed the date range
-          // when markOutOfRangeDateInvalid is true
-          expect(selectedDate.year, initialDate.year);
-          expect(selectedDate.month, initialDate.month);
+          // Ensure animations are settled
+          await tester.pumpAndSettle(const Duration(milliseconds: 750));
+
+          // Verify the selected date not changed
+          expect(
+            selectedDate,
+            initialDate,
+            reason: 'The selected date should be the initial date '
+                '($initialDate) since the target date is out of range ',
+          );
+          await tester.pumpAndSettle();
         },
       );
 
       testWidgets(
-        'should keep the selected date even when date chosen is out of range and markOutOfRangeDateInvalid is false ',
+        'should keep the new date when date chosen is out of range and markOutOfRangeDateInvalid is false',
         (tester) async {
           final initialDate = DateTime(2023, 2);
           final minDate = DateTime(2023);
           final maxDate = DateTime(2023, 3);
           const scrollSteps = 5;
 
-          late DateTime selectedDate;
+          var selectedDate = initialDate;
 
           await tester.pumpWidget(
             MaterialApp(
               home: _TestPage(
-                format: DateFormat('MMMyyyy'),
-                // ignore: avoid_redundant_argument_values
+                format: DateFormat('MMMdd'),
                 markOutOfRangeDateInvalid: false,
                 dateOption: DateTimePickerOption(
-                  dateFormat: DateFormat('MMyyyy'),
+                  dateFormat: DateFormat('MMMdd'),
                   minDate: minDate,
                   maxDate: maxDate,
                   initialDate: initialDate,
@@ -358,33 +393,327 @@ void main() {
           );
           await tester.pumpAndSettle(const Duration(milliseconds: 500));
 
-          // Drag down for five item
+          // Verify the initial date is set correctly
+          expect(selectedDate, initialDate);
+
+          // Calculate the required scroll distance
+          const itemHeight = 54.0;
+          const scrollDistance = (itemHeight * scrollSteps) + 10;
+
+          // Ensure the widget has time to update
+          await tester.pumpAndSettle(const Duration(milliseconds: 500));
+
+          // Find widget to scroll
+          final listWheelScrollViews = find.byWidgetPredicate((widget) {
+            if (widget is! ListWheelScrollView) return false;
+
+            // The scrollable widget should wrapped by ScrollTypeListener
+            final finder = find.ancestor(
+              of: find.byWidget(widget),
+              matching: find.byType(ScrollTypeListener),
+            );
+
+            // Return true if no IgnorePointer ancestor exists
+            return finder.evaluate().isNotEmpty;
+          }).evaluate();
+          final widgetToScroll = find.byWidget(
+            listWheelScrollViews.first.widget, // Month is the first widget
+          );
+
+          // Perform drag and wait for it to complete
           await tester.drag(
-            find.byType(ListWheelScrollView).first,
-            const Offset(0, -54.0 * scrollSteps + 10),
+            widgetToScroll,
+            const Offset(0, -scrollDistance),
             warnIfMissed: false,
           );
-          await tester.pumpAndSettle(const Duration(milliseconds: 200));
 
-          // Make sure the datetime selected is not exceed the date range
-          // when markOutOfRangeDateInvalid is true
-          expect(selectedDate.year, initialDate.year);
-          expect(selectedDate.month, initialDate.month + scrollSteps);
+          // Ensure animations are settled
+          await tester.pumpAndSettle();
+
+          // Verify the selected date has changed
+          final expectedDate = initialDate.copyWith(
+            month: initialDate.month + scrollSteps,
+          );
+          expect(
+            selectedDate,
+            expectedDate,
+            reason: 'The selected date should have been '
+                'updated to $expectedDate',
+          );
+          await tester.pumpAndSettle();
         },
       );
     },
   );
+
+  group('ScrollDateTimePicker Programmatic Scroll', () {
+    testWidgets(
+      'should scroll to specified date using controller',
+      (tester) async {
+        // Arrange
+        final controller = DateTimePickerController();
+
+        // Initial date
+        final initialDate = DateTime(2023, 2, 15);
+
+        // Target date to scroll to
+        final targetDate = DateTime(2023, 5, 20);
+
+        // Variable to track onChange
+        var selectedDate = initialDate;
+
+        await tester.pumpWidget(
+          MaterialApp(
+            home: _TestPage(
+              format: DateFormat('MMMdd'),
+              markOutOfRangeDateInvalid: false,
+              controller: controller,
+              dateOption: DateTimePickerOption(
+                dateFormat: DateFormat('MMMdd'),
+                minDate: DateTime(2023),
+                maxDate: DateTime(2024),
+                initialDate: initialDate,
+              ),
+              onChange: (datetime) => selectedDate = datetime,
+            ),
+          ),
+        );
+
+        // Allow initial rendering
+        await tester.pumpAndSettle();
+
+        // Verify initial state
+        expect(selectedDate, initialDate);
+
+        // Programmatically change the date using the controller
+        controller.changeDateTime(targetDate);
+
+        // Allow animations to settle
+        await tester.pumpAndSettle(const Duration(milliseconds: 1000));
+
+        // Verify the date has been updated
+        expect(selectedDate, targetDate);
+        await tester.pumpAndSettle(const Duration(milliseconds: 1000));
+      },
+    );
+
+    testWidgets(
+      'should handle out-of-range dates when markOutOfRangeDateInvalid is true',
+      (tester) async {
+        // Create a controller
+        final controller = DateTimePickerController();
+
+        // Initial date
+        final initialDate = DateTime(2023, 2, 15);
+
+        // Target date outside the allowed range
+        final outOfRangeDate = DateTime(2025);
+
+        // Variable to track onChange
+        var selectedDate = initialDate;
+
+        // Flag to track if exception was caught
+        var exceptionCaught = false;
+
+        await tester.pumpWidget(
+          MaterialApp(
+            home: _TestPage(
+              format: DateFormat('MMMdd'),
+              // ignore: avoid_redundant_argument_values
+              markOutOfRangeDateInvalid: true,
+              controller: controller,
+              dateOption: DateTimePickerOption(
+                dateFormat: DateFormat('MMMdd'),
+                minDate: DateTime(2023),
+                maxDate: DateTime(2024),
+                initialDate: initialDate,
+              ),
+              onChange: (datetime) => selectedDate = datetime,
+            ),
+          ),
+        );
+
+        // Allow initial rendering
+        await tester.pumpAndSettle();
+
+        // Verify initial state
+        expect(selectedDate, initialDate);
+
+        // Attempt to change to out-of-range date
+        // Set up a zone to catch the exception
+        await runZonedGuarded(
+          () async {
+            // Attempt to change to out-of-range date
+            controller.changeDateTime(outOfRangeDate);
+
+            // Allow time for listeners to process
+            await tester.pumpAndSettle(const Duration(milliseconds: 500));
+          },
+          (error, stackTrace) {
+            // Catch and verify the exception
+            if (error is Exception &&
+                error.toString().contains('Date is Out of Range')) {
+              exceptionCaught = true;
+            }
+          },
+        );
+
+        // Wait a bit to ensure any async operations complete
+        await tester.pumpAndSettle(const Duration(milliseconds: 1000));
+
+        // Verify the exception was caught and the date remains unchanged
+        expect(
+          exceptionCaught,
+          isTrue,
+          reason: 'Exception for out-of-range date should have been caught',
+        );
+        expect(selectedDate, initialDate);
+        await tester.pumpAndSettle(const Duration(milliseconds: 1000));
+      },
+    );
+
+    testWidgets(
+      'should handle out-of-range dates when markOutOfRangeDateInvalid is false',
+      (tester) async {
+        // Create a controller
+        final controller = DateTimePickerController();
+
+        // Initial date
+        final initialDate = DateTime(2023, 2, 15);
+
+        // Target date outside the allowed range
+        final outOfRangeDate = DateTime(2025);
+
+        // Variable to track onChange
+        var selectedDate = initialDate;
+
+        // Flag to track if exception was caught
+        var exceptionCaught = false;
+
+        await tester.pumpWidget(
+          MaterialApp(
+            home: _TestPage(
+              format: DateFormat('MMMdd'),
+              markOutOfRangeDateInvalid: false,
+              controller: controller,
+              dateOption: DateTimePickerOption(
+                dateFormat: DateFormat('MMMdd'),
+                minDate: DateTime(2023),
+                maxDate: DateTime(2024),
+                initialDate: initialDate,
+              ),
+              onChange: (datetime) => selectedDate = datetime,
+            ),
+          ),
+        );
+
+        // Allow initial rendering
+        await tester.pumpAndSettle();
+
+        // Verify initial state
+        expect(selectedDate, initialDate);
+
+        // Attempt to change to out-of-range date
+        // Set up a zone to catch the exception
+        await runZonedGuarded(
+          () async {
+            // Attempt to change to out-of-range date
+            controller.changeDateTime(outOfRangeDate);
+
+            // Allow time for listeners to process
+            await tester.pumpAndSettle(const Duration(milliseconds: 500));
+          },
+          (error, stackTrace) {
+            // Catch and verify the exception
+            if (error is Exception &&
+                error.toString().contains('Date is Out of Range')) {
+              exceptionCaught = true;
+            }
+          },
+        );
+
+        // Wait a bit to ensure any async operations complete
+        await tester.pumpAndSettle(const Duration(milliseconds: 1000));
+
+        // Verify the exception was caught and the date remains unchanged
+        expect(
+          exceptionCaught,
+          isTrue,
+          reason: 'Exception for out-of-range date should have been caught',
+        );
+        expect(selectedDate, initialDate);
+        await tester.pumpAndSettle(const Duration(milliseconds: 1000));
+      },
+    );
+
+    testWidgets(
+      'should handle multiple rapid date changes',
+      (tester) async {
+        // Create a controller
+        final controller = DateTimePickerController();
+
+        // Initial date
+        final initialDate = DateTime(2023, 2, 15);
+
+        // Target dates
+        final targetDate1 = DateTime(2023, 5, 20);
+        final targetDate2 = DateTime(2023, 8, 10);
+        final targetDate3 = DateTime(2023, 11, 5);
+
+        // Variable to track onChange
+        var selectedDate = initialDate;
+
+        await tester.pumpWidget(
+          MaterialApp(
+            home: _TestPage(
+              format: DateFormat('MMMdd'),
+              markOutOfRangeDateInvalid: false,
+              controller: controller,
+              dateOption: DateTimePickerOption(
+                dateFormat: DateFormat('MMMdd'),
+                minDate: DateTime(2023),
+                maxDate: DateTime(2024),
+                initialDate: initialDate,
+              ),
+              onChange: (datetime) => selectedDate = datetime,
+            ),
+          ),
+        );
+
+        // Allow initial rendering
+        await tester.pumpAndSettle();
+
+        // Verify initial state
+        expect(selectedDate, initialDate);
+
+        // Rapidly change dates
+        controller.changeDateTime(targetDate1);
+        await tester.pumpAndSettle(const Duration(milliseconds: 200));
+
+        controller.changeDateTime(targetDate2);
+        await tester.pumpAndSettle(const Duration(milliseconds: 200));
+
+        controller.changeDateTime(targetDate3);
+        await tester.pumpAndSettle(const Duration(milliseconds: 1000));
+
+        // Verify the final date
+        expect(selectedDate, targetDate3);
+      },
+    );
+  });
 }
 
 class _TestPage extends StatefulWidget {
   const _TestPage({
     required this.format,
+    this.controller,
     this.dateOption,
     this.onChange,
     this.markOutOfRangeDateInvalid = true,
   });
 
   final DateFormat format;
+  final DateTimePickerController? controller;
   final DateTimePickerOption? dateOption;
   final bool markOutOfRangeDateInvalid;
   final void Function(DateTime datetime)? onChange;
@@ -430,6 +759,7 @@ class _TestPageState extends State<_TestPage> {
       ),
       body: ScrollDateTimePicker(
         key: const Key('ScrollDateTimePicker'),
+        controller: widget.controller,
         itemExtent: 54,
         markOutOfRangeDateInvalid: widget.markOutOfRangeDateInvalid,
         onChange: (datetime) => setState(() {

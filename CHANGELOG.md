@@ -1,5 +1,10 @@
+## 0.2.0
+
+- **New Feature:** Added `DateTimePickerController` to enable programmatic control over the picker's date and time selection.
+
 ## 0.1.2
-- **Bug Fix:** Resolved issue where `setState` is called after widget is unmounted. 
+
+- **Bug Fix:** Resolved issue where `setState` is called after widget is unmounted.
 
 ## 0.1.1
 
