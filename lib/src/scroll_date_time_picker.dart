@@ -431,10 +431,11 @@ class _ScrollDateTimePickerState extends State<ScrollDateTimePicker> {
 
     /* 3. Refresh widget state if date changed */
     if (newDate != _activeDate && mounted) {
-      _activeDate = newDate;
-      widget.onChange?.call(newDate);
-      setState(() {});
+      setState(() => _activeDate = newDate);
     }
+
+    /* 4. Trigger onChange callback with latest date */
+    widget.onChange?.call(newDate);
 
     /* 4. Recheck scroll positions, should be stopped at correct position */
     if (!_isRecheckingPosition.value) {
