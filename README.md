@@ -35,6 +35,7 @@ Welcome to the Scroll DateTime Picker – a versatile and highly customizable Fl
 - [🎨 Fully Customize Date/Time Picker Appearance](#-fully-customize-datetime-picker-appearance)<br>
 - [📜 Choose Between Infinite/Finite Scroll](#-choose-between-infinitefinite-scroll)<br>
 - [🧠 Smart Detection on Invalid Date & Leap Year Handling](#-smart-detection-on-invalid-date-and-leap-year-handling)<br>
+- [🔄 Programmatic Control with DateTimePickerController](#-programmatic-control-with-datetimepickercontroller)<br>
 
 ## Usage
 
@@ -326,6 +327,102 @@ In this example, the active, inactive, and disabled item of the picker is custom
 - If the picker wheel stops at a date before the minimum date or after the maximum date, it will automatically revert to the previous date.
 - If the picker wheel stops at an invalid date (e.g. `31 Jun 2021`), the picker will automatically adjust the date. In this case, the day will automatically scrolled to be `30 Jun 2021`
 - If the picker wheel stops at an invalid leap year date e.g. `30 Feb 2020`, the picker will automatically fix the invalid value. In this case, the day will automatically scrolled to be `29 Feb 2020`
+
+---
+
+### 🔄 Programmatic Control with DateTimePickerController
+
+> Gain full control over the date and time selection programmatically using the `DateTimeController`.
+
+The `DateTimePickerController` allows you to manage the state of the `ScrollDateTimePicker` programmatically. This is particularly useful for scenarios where you need to:
+
+- Set an initial date programmatically
+- Change the date based on user interactions outside the picker
+- Synchronize the picker's state with other parts of your application
+- Implement complex date validation logic
+
+#### Usage Example
+
+Here’s how to use the `DateTimePickerController` with the `ScrollDateTimePicker`:
+
+```dart
+class MyHomePage extends StatefulWidget {
+  @override
+  State<MyHomePage> createState() => _MyHomePageState();
+}
+
+class _MyHomePageState extends State<MyHomePage> {
+  final controller = DateTimePickerController();
+  final now = DateTime.now();
+  DateTime selectedDate = DateTime.now();
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      body: Column(
+        children: [
+          ScrollDateTimePicker(
+            controller: controller,
+            itemExtent: 54,
+            dateOption: DateTimePickerOption(
+              dateFormat: DateFormat('EEEE dd MMMM yyyy'),
+              minDate: DateTime(2000, 6),
+              maxDate: DateTime(2030, 6),
+              initialDate: selectedDate,
+            ),
+            onChange: (datetime) => setState(() {
+              selectedDate = datetime;
+            }),
+            // ... other customizations ...
+          ),
+          // Add buttons or other widgets to programmatically change the date
+          ElevatedButton(
+            onPressed: () {
+              final futureDate = selectedDate.add(const Duration(days: 7));
+              controller.changeDateTime(futureDate);
+            },
+            child: const Text('Add 7 Days'),
+          ),
+        ],
+      ),
+    );
+  }
+}
+```
+
+#### Example Use Cases
+
+1. **Initial Date Setup**:
+
+```dart
+final initialDate = DateTime.now();
+final controller = DateTimePickerController();
+controller.changeDateTime(initialDate);
+```
+
+2. **Programmatic Date Update**:
+
+```dart
+ElevatedButton(
+  onPressed: () {
+    final newDate = selectedDate.add(const Duration(days: 14));
+    controller.changeDateTime(newDate);
+  },
+  child: const Text('Add 14 Days'),
+)
+```
+
+3. **Listening to Date Changes**:
+
+```dart
+controller.addListener() {
+  if (controller.value.activeDate != null) {
+    // Handle new date
+    final newDate = controller.value.activeDate!;
+    // Update your UI or perform actions based on the new date
+  }
+};
+```
 
 ## 😇 Contribute
 
