@@ -1,3 +1,7 @@
+## 0.2.1
+
+- **Bug Fix:** Resolved wrong output of `hour24` value.
+
 ## 0.2.0
 
 - **New Feature:** Added `DateTimePickerController` to enable programmatic control over the picker's date and time selection.
