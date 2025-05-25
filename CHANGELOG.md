@@ -1,3 +1,7 @@
+## 0.2.2
+
+- **Dependency Update:** Relaxed `intl` package constraint to `>=0.19.0 <0.21.0` to ensure compatibility with newer versions (up to `intl 0.20.x`).
+
 ## 0.2.1
 
 - **Bug Fix:** Resolved wrong output of `hour24` value.
