@@ -1,4 +1,5 @@
 {
+  "dart.flutterSdkPath": ".fvm/versions/3.27.0"
     "conventionalCommits.scopes": [
         "src",
         "main",
