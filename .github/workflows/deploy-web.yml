@@ -5,14 +5,15 @@ concurrency:
   cancel-in-progress: true
 
 on:
-  push:
+  pull_request:
     branches:
       - ci-test
+  workflow_dispatch: 
 
 jobs:
   deploy_web_demo:
     name: "Deploy Web Demo to GitHub Pages"
-    if: github.ref == 'refs/heads/ci'
+    if: github.actor == 'dhiyaaulauliyaa'
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
