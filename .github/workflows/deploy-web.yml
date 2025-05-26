@@ -1,0 +1,41 @@
+name: Deploy Example Web
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+on:
+  push:
+    branches:
+      - master  
+    tags:
+      - "v[0-9]+.[0-9]+.[0-9]+*"
+  workflow_dispatch: 
+
+jobs:
+  deploy_web_demo:
+    name: "Deploy Example Web to GitHub Pages"
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: "3.27.0"
+
+      - name: Install dependencies
+        run: flutter pub get
+
+      - name: Build Web Demo
+        run: flutter build web --release --base-href "/scroll_datetime_picker/"
+        working-directory: example
+
+      - name: Deploy to gh-pages
+        uses: peaceiris/actions-gh-pages@v4
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: example/build/web
+          publish_branch: gh-pages
+          force_orphan: true
