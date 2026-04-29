@@ -73,15 +73,7 @@ void main() {
         () {
       // Create an instance with all properties explicitly set to the default value of 1
       const prefixFlex = DateTimePickerPrefixFlex(
-        yearFlex: 1,
-        monthFlex: 1,
-        dayFlex: 1,
-        weekdayFlex: 1,
-        hour24Flex: 1,
-        hour12Flex: 1,
-        minuteFlex: 1,
-        secondFlex: 1,
-        amPMFlex: 1,
+        
       );
 
       // Verify all values are set to 1

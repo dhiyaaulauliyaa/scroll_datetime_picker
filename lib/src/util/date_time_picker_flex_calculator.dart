@@ -15,12 +15,12 @@ class DateTimePickerFlexCalculator {
     required DateTimePickerPrefixWidget prefixWidget,
   }) {
     // Item flex is applied for every DateTimeType present in the format
-    final int itemFlexTotal = dateTimeTypes.fold(0, (sum, type) {
+    final itemFlexTotal = dateTimeTypes.fold(0, (sum, type) {
       return sum + itemFlex.getFlex(type);
     });
 
     // Prefix flex is applied only when a widget is set for the type
-    final int prefixFlexTotal = dateTimeTypes.fold(0, (sum, type) {
+    final prefixFlexTotal = dateTimeTypes.fold(0, (sum, type) {
       final hasWidget = prefixWidget.getPrefixWidget(type) != null;
       return sum + (hasWidget ? prefixFlex.getFlex(type) : 0);
     });
@@ -49,7 +49,7 @@ class DateTimePickerFlexCalculator {
 
     if (totalFlex == 0) return {};
 
-    final Map<String, double> flexWidths = {};
+    final flexWidths = <String, double>{};
 
     for (final type in dateTimeTypes) {
       final itemFlexValue = itemFlex.getFlex(type);
