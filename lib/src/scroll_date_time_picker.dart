@@ -172,7 +172,7 @@ class _ScrollDateTimePickerState extends State<ScrollDateTimePicker> {
 
     _option = widget.dateOption;
     _activeDate = _option.getInitialDate;
-    _helper = DateTimePickerHelper(_option);
+    _helper = DateTimePickerHelper(_option, widget.itemFlex, widget.prefixFlex);
     _style = widget.style ?? DateTimePickerStyle();
     _controllers = List.generate(
       _option.patterns.length,
@@ -197,10 +197,15 @@ class _ScrollDateTimePickerState extends State<ScrollDateTimePicker> {
   void didUpdateWidget(covariant ScrollDateTimePicker oldWidget) {
     super.didUpdateWidget(oldWidget);
 
-    if (widget.dateOption != _option) {
+    final dateOptionChanged = widget.dateOption != _option;
+    final itemFlexChanged = widget.itemFlex != oldWidget.itemFlex;
+    final prefixFlexChanged = widget.prefixFlex != oldWidget.prefixFlex;
+
+    if (dateOptionChanged) {
       setState(() {
         _option = widget.dateOption;
-        _helper = DateTimePickerHelper(_option);
+        _helper =
+            DateTimePickerHelper(_option, widget.itemFlex, widget.prefixFlex);
 
         if (_option.patterns.length != _controllers.length) {
           final difference = _option.patterns.length - _controllers.length;
@@ -218,6 +223,11 @@ class _ScrollDateTimePickerState extends State<ScrollDateTimePicker> {
             );
           }
         }
+      });
+    } else if (itemFlexChanged || prefixFlexChanged) {
+      setState(() {
+        _helper =
+            DateTimePickerHelper(_option, widget.itemFlex, widget.prefixFlex);
       });
     }
 
@@ -262,33 +272,23 @@ class _ScrollDateTimePickerState extends State<ScrollDateTimePicker> {
                               final pattern = _option.patterns[colIndex];
                               final type = DateTimeType.fromPattern(pattern);
 
-                              final hasPrefixWidget = widget.prefixWidget
-                                      .hasTypeSpecificPrefixWidgets &&
-                                  widget.prefixWidget.getPrefixWidget(type) !=
-                                      null;
-
-                              final currenttotalFlex = hasPrefixWidget
-                                  ? widget.itemFlex.getFlex(type) +
-                                      widget.prefixFlex.getFlex(type)
-                                  : widget.itemFlex.getFlex(type);
-                              final totalFlex = DateTimePickerFlexCalculator
-                                  .calculateTotalFlex(
-                                dateFormat: _option.dateFormat,
-                                itemFlex: widget.itemFlex,
-                                prefixFlex: widget.prefixFlex,
-                                prefixWidget: widget.prefixWidget,
-                              );
-
                               return Expanded(
-                                flex: currenttotalFlex,
+                                flex: _helper.getColumnFlex(
+                                  type,
+                                  widget.prefixWidget,
+                                ),
                                 child: Row(
                                   children: [
-                                    // Add a spacer with the same flex as the prefix widget if it exists
-                                    if (hasPrefixWidget)
+                                    if (_helper.hasPrefixWidget(
+                                      type,
+                                      widget.prefixWidget,
+                                    ))
                                       SizedBox(
-                                        width: constraints.maxWidth *
-                                            (widget.prefixFlex.getFlex(type) /
-                                                totalFlex),
+                                        width: _helper.getPrefixWidth(
+                                          type,
+                                          widget.prefixWidget,
+                                          constraints.maxWidth,
+                                        ),
                                       ),
                                     Expanded(
                                       child: widget.centerWidget
@@ -321,31 +321,23 @@ class _ScrollDateTimePickerState extends State<ScrollDateTimePicker> {
                     final pattern = _option.patterns[colIndex];
                     final type = DateTimeType.fromPattern(pattern);
 
-                    final hasPrefixWidget =
-                        widget.prefixWidget.hasTypeSpecificPrefixWidgets &&
-                            widget.prefixWidget.getPrefixWidget(type) != null;
-
-                    final currenttotalFlex = hasPrefixWidget
-                        ? widget.itemFlex.getFlex(type) +
-                            widget.prefixFlex.getFlex(type)
-                        : widget.itemFlex.getFlex(type);
-                    final totalFlex =
-                        DateTimePickerFlexCalculator.calculateTotalFlex(
-                      dateFormat: _option.dateFormat,
-                      itemFlex: widget.itemFlex,
-                      prefixFlex: widget.prefixFlex,
-                      prefixWidget: widget.prefixWidget,
-                    );
                     return Expanded(
-                      flex: currenttotalFlex,
+                      flex: _helper.getColumnFlex(type, widget.prefixWidget),
                       child: Row(
                         children: [
                           // Prefix Widget
-                          if (hasPrefixWidget)
+                          if (_helper.hasPrefixWidget(
+                            type,
+                            widget.prefixWidget,
+                          ))
                             SizedBox(
-                              width: constraints.maxWidth *
-                                  (widget.prefixFlex.getFlex(type) / totalFlex),
-                              child: widget.prefixWidget.getPrefixWidget(type)!,
+                              width: _helper.getPrefixWidth(
+                                type,
+                                widget.prefixWidget,
+                                constraints.maxWidth,
+                              ),
+                              child:
+                                  widget.prefixWidget.getPrefixWidget(type)!,
                             ),
                           Expanded(
                             child: PickerWidget(

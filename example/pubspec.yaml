@@ -36,7 +36,7 @@ dependencies:
     sdk: flutter
   flutter_font_picker: ^1.2.0
   google_fonts: ^4.0.4
-  intl: ^0.19.0
+  intl: ^0.20.2
   scroll_datetime_picker:
     path: ../
 
