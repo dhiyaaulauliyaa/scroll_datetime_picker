@@ -337,7 +337,7 @@ class _ScrollDateTimePickerState extends State<ScrollDateTimePicker> {
                                 constraints.maxWidth,
                               ),
                               child:
-                                  widget.prefixWidget.getPrefixWidget(type)!,
+                                  widget.prefixWidget.getPrefixWidget(type),
                             ),
                           Expanded(
                             child: PickerWidget(

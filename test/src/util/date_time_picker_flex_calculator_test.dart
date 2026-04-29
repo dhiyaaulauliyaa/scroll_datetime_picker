@@ -114,10 +114,8 @@ void main() {
       final dateTimeTypes = _typesFrom(DateFormat('yMd'));
       const itemFlex = DateTimePickerItemFlex(
         yearFlex: 2,
-        monthFlex: 1,
-        dayFlex: 1,
       );
-      const prefixFlex = DateTimePickerPrefixFlex(yearFlex: 1);
+      const prefixFlex = DateTimePickerPrefixFlex();
       const prefixWidget = DateTimePickerPrefixWidget(year: Text('Year:'));
       const containerWidth = 400.0;
 
