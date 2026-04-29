@@ -3,8 +3,15 @@ import 'package:scroll_datetime_picker/scroll_datetime_picker.dart';
 import 'package:scroll_datetime_picker/src/entities/enums.dart';
 
 class DateTimePickerHelper {
-  const DateTimePickerHelper(this.option);
+  const DateTimePickerHelper(
+    this.option,
+    this.itemFlex,
+    this.prefixFlex,
+  );
+
   final DateTimePickerOption option;
+  final DateTimePickerItemFlex itemFlex;
+  final DateTimePickerPrefixFlex prefixFlex;
 
   bool isAM(int hour) => hour < 12;
   int convertToHour12(int hour) => hour == 0
@@ -225,6 +232,50 @@ class DateTimePickerHelper {
     );
 
     return date.isAfter(option.maxDate) || date.isBefore(option.minDate);
+  }
+
+  // ---------------------------------------------------------------------------
+  // Layout helpers for prefix widget flex calculations
+  // ---------------------------------------------------------------------------
+
+  /// Whether [prefixWidget] has a widget defined for the given [type].
+  bool hasPrefixWidget(
+    DateTimeType type,
+    DateTimePickerPrefixWidget prefixWidget,
+  ) {
+    return prefixWidget.getPrefixWidget(type) != null;
+  }
+
+  /// Returns the combined flex for a single column (item flex + prefix flex
+  /// when a prefix widget exists for [type]).
+  int getColumnFlex(
+    DateTimeType type,
+    DateTimePickerPrefixWidget prefixWidget,
+  ) {
+    return hasPrefixWidget(type, prefixWidget)
+        ? itemFlex.getFlex(type) + prefixFlex.getFlex(type)
+        : itemFlex.getFlex(type);
+  }
+
+  /// Returns the sum of all column flex values across every type present in
+  /// the current date format.
+  int getTotalFlex(DateTimePickerPrefixWidget prefixWidget) {
+    return option.dateTimeTypes.fold(
+      0,
+      (sum, type) => sum + getColumnFlex(type, prefixWidget),
+    );
+  }
+
+  /// Returns the pixel width that the prefix widget for [type] should occupy,
+  /// given the available [containerWidth].
+  double getPrefixWidth(
+    DateTimeType type,
+    DateTimePickerPrefixWidget prefixWidget,
+    double containerWidth,
+  ) {
+    final total = getTotalFlex(prefixWidget);
+    if (total == 0) return 0;
+    return containerWidth * (prefixFlex.getFlex(type) / total);
   }
 }
 

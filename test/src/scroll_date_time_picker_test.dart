@@ -1,3 +1,5 @@
+// ignore_for_file: avoid_redundant_argument_values
+
 import 'dart:async';
 
 import 'package:flutter/material.dart';
@@ -304,7 +306,6 @@ void main() {
             MaterialApp(
               home: _TestPage(
                 format: DateFormat('MMMdd'),
-                // ignore: avoid_redundant_argument_values
                 markOutOfRangeDateInvalid: true,
                 dateOption: DateTimePickerOption(
                   dateFormat: DateFormat('MMMdd'),
@@ -519,7 +520,6 @@ void main() {
           MaterialApp(
             home: _TestPage(
               format: DateFormat('MMMdd'),
-              // ignore: avoid_redundant_argument_values
               markOutOfRangeDateInvalid: true,
               controller: controller,
               dateOption: DateTimePickerOption(
