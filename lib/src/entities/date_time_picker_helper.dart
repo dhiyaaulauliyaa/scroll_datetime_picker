@@ -2,9 +2,34 @@ import 'package:intl/intl.dart';
 import 'package:scroll_datetime_picker/scroll_datetime_picker.dart';
 import 'package:scroll_datetime_picker/src/entities/enums.dart';
 
+/// A stateless utility class that provides all core computation logic for the
+/// scroll datetime picker.
+///
+/// [DateTimePickerHelper] is intentionally kept free of Flutter widgets so that
+/// its methods are easily unit-testable. It centralises three concerns:
+///
+/// 1. **Date arithmetic** – resolving the [DateTime] that corresponds to a
+///    given scroll-wheel row index, respecting month/year boundaries and
+///    12-hour ↔ 24-hour conversions.
+/// 2. **Item metadata** – item counts, display text via [DateFormat], and
+///    whether a particular row should be rendered as disabled.
+/// 3. **Layout arithmetic** – flex-based width calculations for prefix widgets
+///    that appear alongside each column.
+///
+/// Example construction (typically done inside a `StatefulWidget`):
+/// ```dart
+/// final helper = DateTimePickerHelper(option, itemFlex, prefixFlex);
+/// ```
 class DateTimePickerHelper {
-  const DateTimePickerHelper(this.option);
+  const DateTimePickerHelper(
+    this.option,
+    this.itemFlex,
+    this.prefixFlex,
+  );
+
   final DateTimePickerOption option;
+  final DateTimePickerItemFlex itemFlex;
+  final DateTimePickerPrefixFlex prefixFlex;
 
   bool isAM(int hour) => hour < 12;
   int convertToHour12(int hour) => hour == 0
@@ -225,6 +250,50 @@ class DateTimePickerHelper {
     );
 
     return date.isAfter(option.maxDate) || date.isBefore(option.minDate);
+  }
+
+  // ---------------------------------------------------------------------------
+  // Layout helpers for prefix widget flex calculations
+  // ---------------------------------------------------------------------------
+
+  /// Whether [prefixWidget] has a widget defined for the given [type].
+  bool hasPrefixWidget(
+    DateTimeType type,
+    DateTimePickerPrefixWidget prefixWidget,
+  ) {
+    return prefixWidget.getPrefixWidget(type) != null;
+  }
+
+  /// Returns the combined flex for a single column (item flex + prefix flex
+  /// when a prefix widget exists for [type]).
+  int getColumnFlex(
+    DateTimeType type,
+    DateTimePickerPrefixWidget prefixWidget,
+  ) {
+    return hasPrefixWidget(type, prefixWidget)
+        ? itemFlex.getFlex(type) + prefixFlex.getFlex(type)
+        : itemFlex.getFlex(type);
+  }
+
+  /// Returns the sum of all column flex values across every type present in
+  /// the current date format.
+  int getTotalFlex(DateTimePickerPrefixWidget prefixWidget) {
+    return option.dateTimeTypes.fold(
+      0,
+      (sum, type) => sum + getColumnFlex(type, prefixWidget),
+    );
+  }
+
+  /// Returns the pixel width that the prefix widget for [type] should occupy,
+  /// given the available [containerWidth].
+  double getPrefixWidth(
+    DateTimeType type,
+    DateTimePickerPrefixWidget prefixWidget,
+    double containerWidth,
+  ) {
+    final total = getTotalFlex(prefixWidget);
+    if (total == 0) return 0;
+    return containerWidth * (prefixFlex.getFlex(type) / total);
   }
 }
 

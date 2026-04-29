@@ -1,3 +1,4 @@
+import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:intl/intl.dart';
 import 'package:scroll_datetime_picker/scroll_datetime_picker.dart';
@@ -12,6 +13,8 @@ void main() {
         minDate: DateTime(2020, 6),
         maxDate: DateTime(2024, 1, 1, 23, 59, 59),
       ),
+      const DateTimePickerItemFlex(),
+      const DateTimePickerPrefixFlex(),
     );
 
     test(
@@ -211,6 +214,81 @@ void main() {
         expect(helper.isTextDisabled(DateTimeType.amPM, date, 0), true);
       },
     );
+
+    group('layout helper methods', () {
+      const noPrefixWidget = DateTimePickerPrefixWidget();
+      const withYearPrefix = DateTimePickerPrefixWidget(year: Text('Year:'));
+
+      test('hasPrefixWidget returns false when no prefix widgets are set', () {
+        expect(helper.hasPrefixWidget(DateTimeType.year, noPrefixWidget), false);
+        expect(helper.hasPrefixWidget(DateTimeType.month, noPrefixWidget), false);
+      });
+
+      test('hasPrefixWidget returns true only for types that have a widget', () {
+        expect(helper.hasPrefixWidget(DateTimeType.year, withYearPrefix), true);
+        expect(helper.hasPrefixWidget(DateTimeType.month, withYearPrefix), false);
+      });
+
+      test('getColumnFlex returns itemFlex when no prefix widget exists', () {
+        // Default itemFlex is 1 for every type; no prefix widget → column flex == 1
+        expect(helper.getColumnFlex(DateTimeType.year, noPrefixWidget), 1);
+        expect(helper.getColumnFlex(DateTimeType.month, noPrefixWidget), 1);
+      });
+
+      test('getColumnFlex adds prefixFlex when a prefix widget exists', () {
+        // Default itemFlex = 1, default prefixFlex = 1 → 1 + 1 = 2
+        expect(helper.getColumnFlex(DateTimeType.year, withYearPrefix), 2);
+        // Month has no prefix widget → still 1
+        expect(helper.getColumnFlex(DateTimeType.month, withYearPrefix), 1);
+      });
+
+      test('getTotalFlex sums column flex values across all format types', () {
+        // Format: 'yy-MMM-dd hh:mm:ss a' → year, month, day, hour12, minute, second, amPM (7 types)
+        // No prefix widgets → total = 7 × 1 = 7
+        expect(helper.getTotalFlex(noPrefixWidget), 7);
+
+        // Year has prefix → year contributes 2, rest 1 each (6) → total = 8
+        expect(helper.getTotalFlex(withYearPrefix), 8);
+      });
+
+      test('getPrefixWidth returns 0 when no prefix widget exists for type', () {
+        expect(
+          helper.getPrefixWidth(DateTimeType.year, noPrefixWidget, 400),
+          0,
+        );
+      });
+
+      test('getPrefixWidth returns correct fraction of container width', () {
+        // Total flex with year prefix = 8 (see above). prefixFlex for year = 1.
+        // Expected width = 400 * (1 / 8) = 50.0
+        expect(
+          helper.getPrefixWidth(DateTimeType.year, withYearPrefix, 400),
+          400 * (1 / 8),
+        );
+      });
+
+      test('getPrefixWidth with custom itemFlex and prefixFlex', () {
+        final customHelper = DateTimePickerHelper(
+          DateTimePickerOption(
+            dateFormat: DateFormat('yy-MMM-dd hh:mm:ss a'),
+            minDate: DateTime(2020, 6),
+            maxDate: DateTime(2024, 1, 1, 23, 59, 59),
+          ),
+          const DateTimePickerItemFlex(yearFlex: 2),
+          const DateTimePickerPrefixFlex(yearFlex: 3),
+        );
+
+        // Types: year(item=2,prefix=3), month(1), day(1), hour12(1), minute(1), second(1), amPM(1)
+        // Total = (2+3) + 1 + 1 + 1 + 1 + 1 + 1 = 11
+        expect(customHelper.getTotalFlex(withYearPrefix), 11);
+
+        // prefixWidth = 800 * (3 / 11)
+        expect(
+          customHelper.getPrefixWidth(DateTimeType.year, withYearPrefix, 800),
+          closeTo(800 * (3 / 11), 0.001),
+        );
+      });
+    });
   });
 
   group('test int extension', () {
