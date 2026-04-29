@@ -2,6 +2,24 @@ import 'package:intl/intl.dart';
 import 'package:scroll_datetime_picker/scroll_datetime_picker.dart';
 import 'package:scroll_datetime_picker/src/entities/enums.dart';
 
+/// A stateless utility class that provides all core computation logic for the
+/// scroll datetime picker.
+///
+/// [DateTimePickerHelper] is intentionally kept free of Flutter widgets so that
+/// its methods are easily unit-testable. It centralises three concerns:
+///
+/// 1. **Date arithmetic** – resolving the [DateTime] that corresponds to a
+///    given scroll-wheel row index, respecting month/year boundaries and
+///    12-hour ↔ 24-hour conversions.
+/// 2. **Item metadata** – item counts, display text via [DateFormat], and
+///    whether a particular row should be rendered as disabled.
+/// 3. **Layout arithmetic** – flex-based width calculations for prefix widgets
+///    that appear alongside each column.
+///
+/// Example construction (typically done inside a `StatefulWidget`):
+/// ```dart
+/// final helper = DateTimePickerHelper(option, itemFlex, prefixFlex);
+/// ```
 class DateTimePickerHelper {
   const DateTimePickerHelper(
     this.option,
